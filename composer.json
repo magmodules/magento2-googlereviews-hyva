@@ -1,0 +1,22 @@
+{
+    "name": "magmodules/magento2-hyva-googlereviews",
+    "description": "Hyvä Themes Compatibility module for Magmodules GoogleReviewsSR",
+    "type": "magento2-module",
+    "license": [
+      "OSL-3.0",
+      "AFL-3.0"
+    ],
+    "require": {
+      "magento/framework": "*",
+      "hyva-themes/magento2-compat-module-fallback": "*",
+      "magmodules/magento2-googlereviews": "*"
+    },
+    "autoload": {
+      "files": [
+        "src/registration.php"
+      ],
+      "psr-4": {
+        "Magmodules\\HyvaGoogleReviewsSR\\": "src/"
+      }
+    }
+  }

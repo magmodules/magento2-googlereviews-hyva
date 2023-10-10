@@ -1,0 +1,570 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php
+/* @var Magento\Framework\View\Element\Template $block */
+/* @var Magmodules\GoogleReviewsSR\ViewModel\Reviews $viewModel */
+$viewModel = $block->getViewModel();
+?>
+
+<div id="googlereviews-reviews" x-data="initGoogleReviews()">
+    <section class="header-rating">
+        <div class="reviews-header flex items-center justify-between gap-7 mb-6">
+            <h1 class="text-stone-800 text-3xl font-bold"
+                x-text="filters.pageTitle"></h1>
+
+            <span class="flex items-center gap-2 cursor-pointer text-white p-1 bg-[#3879bd] rounded-md
+                         md:p-0 md:text-[#3879bd] md:bg-transparent
+                         transition-opacity duration-300 hover:opacity-80"
+                  x-show="isFiltersVisible"
+                  @click="showFilters = !showFilters">
+                
+                <span class="hidden md:block">
+                    <?= $block->escapeHtml(__('Filter Reviews')); ?>
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 9.75V10.5" />
+                </svg>
+            </span>
+        </div>
+
+        <div class="rating-container grid gap-5 md:grid-cols-[auto_auto] lg:grid-cols-[auto_1fr] text-stone-600" 
+             x-show="filters.accounts.data[0].selected">
+            <div class="account-brand flex gap-5 items-start md:items-center p-3 pr-5 bg-white shadow rounded-lg">
+                <img src="<?= $this->getViewFileUrl('Magmodules_GoogleReviewsSR/images/logo.png'); ?>" 
+                     width="45" height="45" alt="Lid">
+
+                <div>
+                    <span class="text-[#3879bd] font-bold block mb-2 md:mb-0"
+                          x-text="filters.accounts.data[0].title || filters.accounts.data[0].frontendTitle"></span>
+
+                    <div class="rating-summary relative inline-block md:hidden -ml-1">
+                        <div class="empty-starts flex text-stone-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                        </div>
+
+                        <div class="filling-starts absolute top-0 text-yellow-400 overflow-hidden"
+                             :style="`width: ${filters.accounts.data[0].avgRating * 20}%`">
+
+                            <div class="inline-flex">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="account-text hidden text-sm md:block">
+                        <?= $block->escapeHtml(__('Write your review')); ?>
+                        <a class="text-[#3879bd] transition-opacity duration-300 hover:opacity-80 underline underline-offset-2"
+                           :href="filters.accounts.data[0].url" target="_blank"><?= $block->escapeHtml(__('here')); ?></a>
+                    </div>
+
+                    <div class="account-score -mt-2 text-sm md:hidden">
+                        <?= $block->escapeHtml(__('Rated with a')); ?>
+                        <b x-text="filters.accounts.data[0].avgRatingScore"></b>
+                        <?= $block->escapeHtml(__('based on')); ?>
+                        <b x-text="filters.accounts.data[0].total"></b>
+                        <?= $block->escapeHtml(__('reviews')); ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="account-description hidden px-5 py-3 bg-white shadow rounded-lg md:grid gap-2 lg:gap-0">
+                <div class="flex gap-8 items-center justify-between">
+                    <h3 class="font-bold text-xl">
+                        <?= $block->escapeHtml(__('Is')); ?>
+                        <span x-text="filters.accounts.data[0].frontendTitle || filters.accounts.data[0].title"></span>
+                        <?= $block->escapeHtml(__('Safe?')); ?>
+                    </h3>
+
+                    <div class="review-wrapper flex gap-2 items-end -mr-1 whitespace-nowrap">
+                        <b x-text="filters.accounts.data[0].avgRatingScore"></b>
+                        <div class="rating-summary relative inline-block">
+                            <div class="empty-starts flex text-stone-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                            </div>
+
+                            <div class="filling-starts absolute top-0 text-yellow-400 overflow-hidden"
+                                :style="`width: ${filters.accounts.data[0].avgRating * 20}%`">
+
+                                <div class="inline-flex">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-8 items-start justify-between text-sm">
+                    <p>
+                        <?= $block->escapeHtml(__('Read')); ?>
+                        <b x-text="filters.accounts.data[0].total"></b>
+                        <b><?= $block->escapeHtml(__('reviews')); ?></b>
+                        <?= $block->escapeHtml(__('about this online store & check they are safe.')); ?>
+                    </p>
+
+                    <a class="text-[#3879bd] transition-opacity duration-300 hover:opacity-80 
+                                underline underline-offset-2 whitespace-nowrap"
+                       :x-show="filters.accounts.data[0].url"
+                       :href="filters.accounts.data[0].url" target="_blank"><?= $block->escapeHtml(__('Submit a review')); ?></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="reviews-content mt-5">
+        <div class="grid gap-5" x-show="reviews.length">
+            <template x-for="review in reviews">
+                <div class="p-5 bg-white shadow rounded-lg flex flex-col gap-8 justify-between text-stone-600 md:flex-row">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <img :src="review.picture" :alt="review.name" width="32" height="32">
+                            <span x-text="review.name""></span>
+                        </div>
+                        <div class="text-sm 
+                                    before:content-['“'] before:text-4xl before:opacity-50 before:block before:h-5
+                                    after:content-['„'] after:text-4xl after:opacity-50 after:inline-block after:h-5
+                                    after:leading-[0] after:ml-1" 
+                            x-text="review.comment"></div>
+                    </div>
+
+                    <div class="text-xs flex justify-between items-center gap-5 md:block md:text-right md:whitespace-nowrap ">
+                        <div class="rating-summary order-2 relative inline-block -ml-1 md:order-none">
+                            <div class="empty-starts flex text-stone-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                            </div>
+
+                            <div class="filling-starts absolute top-0 text-yellow-400 overflow-hidden"
+                                 :style="`width: ${review.total * 20}%`">
+
+                                <div class="inline-flex">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:mt-2 md:mb-1 opacity-80" x-text="review.created"></div>
+                        <div class="opacity-80 hidden md:block" x-text="review.locale"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div class="text-stone-600 text-sm" x-show="!reviews.length">
+            <?= $block->escapeHtml(__('No reviews data available')); ?>
+        </div>  
+    </section>
+
+    <section class="reviews-pagination mt-5" x-show="pagination.isAvailable">
+        <ol class="pages relative z-0 inline-flex shadow-sm">
+            <li class="page-previous">
+                <span class="prev cursor-pointer relative inline-flex items-center text-sm font-medium leading-5 bg-white 
+                            border border-gray-300 transition duration-150 ease-in-out hover:text-gray-400 
+                            focus:z-10 focus:outline-none focus:border-primary-lighter focus:shadow-outline-blue 
+                            active:bg-gray-100 active:text-gray-500 rounded-l-md px-3 py-2 text-gray-500"
+                      aria-label="Previous"
+                      :class="{ 'opacity-50 pointer-events-none': !pagination.prevValue }"
+                      @click="updateReviews({ 'page': pagination.prevValue })">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </span>
+            </li>
+
+            <template x-for="page in pagination.pages">
+                <template x-if="( page.value >= pagination.currentPage - 2 
+                                && page.value <= pagination.currentPage + 2 
+                                && pagination.currentPage != 1
+                                && pagination.currentPage != 2
+                                && pagination.currentPage != pagination.pages.length
+                                && pagination.currentPage != pagination.pages.length - 1 ) 
+
+                                || ((pagination.currentPage == 1 || pagination.currentPage == 2) && page.value < 6 )
+                                || ((pagination.currentPage == pagination.pages.length || pagination.currentPage == pagination.pages.length - 1) && page.value + 5 > pagination.pages.length )">
+                    <li class="item -ml-px">
+                        <span class="relative inline-flex items-center text-sm font-medium leading-5 bg-white border cursor-pointer
+                                    border-gray-300 transition duration-150 ease-in-out hover:text-gray-400 focus:z-10 
+                                    focus:outline-none focus:border-primary-lighter focus:shadow-outline-blue active:bg-gray-100 
+                                    active:text-gray-500 px-4 py-2 text-gray-700"
+                                :class="{ 'bg-gray-100 border-primary z-20 pointer-events-none': page.current }"
+                                @click="updateReviews({ 'page': page.value })">
+                            <span class="sr-only label">Page</span>
+                            <span x-text="page.value"></span>
+                        </span>
+                    </li>
+                </template>
+            </template>
+
+            <li class="page-next -ml-px">
+                <span class="next cursor-pointer relative inline-flex items-center text-sm font-medium leading-5 bg-white 
+                            border border-gray-300 transition duration-150 ease-in-out hover:text-gray-400 
+                            focus:z-10 focus:outline-none focus:border-primary-lighter focus:shadow-outline-blue 
+                            active:bg-gray-100 active:text-gray-500 rounded-r-md px-3 py-2 text-gray-500"
+                      aria-label="Next"
+                      :class="{ 'opacity-50 pointer-events-none': !pagination.nextValue }"
+                      @click="updateReviews({ 'page': pagination.nextValue })">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </span>
+            </li>
+        </ol>
+    </section>
+
+    <!-- Filter modal -->
+    <section class="filter-modal fixed top-0 left-0 bottom-0 z-40 w-full max-w-xs
+                    transition-transform duration-300 -translate-x-full
+                    md:max-w-3xl lg:max-w-5xl 2xl:max-w-7xl
+                    md:bottom-auto md:left-1/2 md:py-10 md:px-5 md:-translate-x-1/2 md:-translate-y-full"
+             :class="{ 'translate-x-0 md:translate-y-0': showFilters }">
+        <div class="h-full bg-white">
+            <div class="header relative bg-stone-100 px-3 py-2 text-stone-800 md:px-4 md-py-3">
+                <h2 class="text-xl">
+                    <?= $block->escapeHtml(__('Filter Reviews')); ?>
+                </h2>
+                <span class="absolute top-2 right-2 cursor-pointer transition-opacity duration-300 hover:opacity-80"
+                      @click="showFilters = !showFilters">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </span>
+            </div>
+
+            <div class="content p-3 md:p-4">
+                <!-- Filter for account -->
+                <template x-if="filters.accounts.enabled && filters.accounts.data.length">
+                    <div class="filters-container mb-4 pb-5 border-b border-stone-300">
+                        <h3 class="text-stone-700 text-lg font-bold mb-2">
+                            <?= $block->escapeHtml(__('Filter on account:')); ?>
+                        </h3>
+                    
+                        <div class="review-filters text-sm text-stone-600 flex flex-wrap gap-x-8 gap-y-4">
+                            <label class="inline-flex items-center gap-3"
+                                for="accounts-filter-all">
+                                <input type="checkbox" id="accounts-filter-all" name="accounts" value="all" 
+                                       @click="saveForUpdate('filterAccounts', 'all')">
+                                <span>
+                                    <?= $block->escapeHtml(__('All Accounts')); ?>
+                                </span>
+                            </label>
+
+                            <template x-for="item in filters.accounts.data">
+                                <label class="inline-flex items-center gap-3"
+                                       :for="`accounts-filter-${item.id}`">
+                                    <input type="checkbox" name="accounts"
+                                        :id="`accounts-filter-${item.id}`"
+                                        :value="item.id"
+                                        :checked="item.selected"
+                                        :enable="item.defaultAcc"
+                                        @click="saveForUpdate('filterAccounts', item.id)">
+
+                                    <span>
+                                        <img :src="`https://www.ekomi.com/${item.logo}`"
+                                             :alt="item.title">
+                                        <span x-text="item.title"></span>
+                                    </span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Filter for locales -->
+                <template x-if="filters.locales.enabled && filters.locales.data.length">
+                    <div class="filters-container mb-4 pb-5 border-b border-stone-300">
+                        <h3 class="text-stone-700 text-lg font-bold mb-2">
+                            <?= $block->escapeHtml(__('Filter on language:')); ?>
+                        </h3>
+                    
+                        <div class="review-filters text-sm text-stone-600 flex flex-wrap gap-x-8 gap-y-4">
+                            <label class="inline-flex items-center gap-3"
+                                for="locales-filter-all">
+                                <input type="checkbox" id="locales-filter-all" name="locales" value="all" 
+                                       @click="saveForUpdate('filterLocales', 'all')">
+                                <span>
+                                    <?= $block->escapeHtml(__('All Languages')); ?>
+                                </span>
+                            </label>
+
+                            <template x-for="item in filters.locales.data">
+                                <label class="inline-flex items-center gap-3"
+                                    :for="`locales-filter-${item.value}`">
+                                    <input type="checkbox" name="locales"
+                                        :id="`locales-filter-${item.value}`"
+                                        :value="item.value"
+                                        :checked="item.selected"
+                                        @click="saveForUpdate('filterLocales', item.value)">
+
+                                    <span x-text="item.label"></span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Filter for review -->
+                <template x-if="filters.ratings.enabled && filters.ratings.data.length">
+                    <div class="filters-container mb-4 pb-5 border-b border-stone-300">
+                        <h3 class="text-stone-700 text-lg font-bold mb-2">
+                            <?= $block->escapeHtml(__('Filter on review:')); ?>
+                        </h3>
+                    
+                        <div class="review-filters text-sm text-stone-600 flex flex-wrap gap-x-8 gap-y-4">
+                            <label class="inline-flex items-center gap-3 min-w-[124px]"
+                                   for="ratings-filter-all">
+                                <input type="checkbox" id="ratings-filter-all" name="ratings" value="all" 
+                                       @click="saveForUpdate('filterReview', 'all')">
+                                <span>
+                                    <?= $block->escapeHtml(__('All Reviews')); ?>
+                                </span>
+                            </label>
+
+                            <template x-for="item in filters.ratings.data">
+                                <label class="inline-flex items-center gap-3"
+                                       :for="`ratings-filter-${item.value}`">
+                                    <input type="checkbox" name="ratings"
+                                           :id="`ratings-filter-${item.value}`"
+                                           :value="item.value"
+                                           :checked="item.selected"
+                                           @click="saveForUpdate('filterReview', item.value)">
+
+                                        <div class="rating-summary relative inline-block -ml-1">
+                                            <div class="empty-starts flex text-stone-200">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                </svg>
+                                            </div>
+
+                                            <div class="filling-starts absolute top-0 text-yellow-400 overflow-hidden"
+                                                :style="`width: ${item.value * 20}%`">
+
+                                                <div class="inline-flex">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                    </svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                    </svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                    </svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                    </svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Filter for years -->
+                <!-- TODO: request not work now, need check on BE side -->
+                <template x-if="filters.years.enabled && filters.years.data.length">
+                    <div class="filters-container mb-4 pb-5 border-b border-stone-300">
+                        <h3 class="text-stone-700 text-lg font-bold mb-2">
+                            <?= $block->escapeHtml(__('Filter on year:')); ?>
+                        </h3>
+                    
+                        <div class="review-filters text-sm text-stone-600 flex flex-wrap gap-x-8 gap-y-4">
+                            <template x-for="item in filters.years.data">
+                                <label class="inline-flex items-center gap-3"
+                                       :for="`years-filter-${item.value}`">
+                                    <input type="checkbox" name="years"
+                                        :id="`years-filter-${item.value}`"
+                                        :value="item.value"
+                                        :checked="item.selected"
+                                        @click="saveForUpdate('filterYears', item.value)">
+
+                                    <span x-text="item.label"></span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <button class="btn btn-primary mt-5 text-base py-1"
+                        @click="updateReviews">
+                    <?= $block->escapeHtml(__('Apply filters')); ?>
+                </button>
+            </div>
+        </div>
+    </section>
+    <span class="modal-overlay fixed top-0 right-0 bottom-0 left-0 z-30 bg-black/20
+                transition-opacity duration-300 opacity-0 invisible"
+          :class="{ '!opacity-100 !visible': showFilters }"
+          @click="showFilters = !showFilters"></span>
+
+    <!-- Loader block -->
+    <?= $block->getChildHtml('loading') ?>
+</div>
+
+<script>
+    'use strict';
+
+    function initGoogleReviews() {
+        return {
+            filters:    <?= $viewModel->serializeData($viewModel->getEnabledFilters()) ?>,
+            reviews:    <?= $viewModel->serializeData($viewModel->getReviews()) ?>,
+            pagination: <?= $viewModel->serializeData($viewModel->getPaginationData()) ?>,
+
+            showFilters: false,
+            isLoading: false,
+            filterAccounts: [],
+            filterLocales: [],
+            filterReview: [],
+            filterYears: [],
+
+            init() {
+                // Update "this.filterLocales" if locales was chosen in the admin panel
+                for (var obj in this.filters) {
+                    if (obj == 'locales') {
+                        this.filters[obj]['data'].forEach((item) => { 
+                            if (item.selected) this.filterLocales.push(item.value);
+                        });
+                    }
+                }
+            },
+
+            isFiltersVisible() {
+                for (var obj in this.filters) {
+                    if (this.filters.hasOwnProperty(obj) && this.filters[obj].enabled) return true;
+                }
+
+                return false;
+            },
+
+            saveForUpdate(filter, value) {
+                !this[filter].includes(value)
+                    ? this[filter].push(value)
+                    : this[filter].splice(this[filter].indexOf(value), 1);
+            },
+
+            updateReviews(params) {
+                this.isLoading = true;
+                const URLParams = new URLSearchParams();
+            
+                URLParams.append('accounts', this.filterAccounts.join(','));
+                URLParams.append('locales', this.filterLocales.join(','));
+                URLParams.append('ratings', this.filterReview.join(','));
+                URLParams.append('years', this.filterYears.join(','));
+                URLParams.append('page', params['page'] ? params['page'] : '');
+
+                fetch(`${this.filters.url}?${URLParams.toString()}`, { method:'get' })            
+                    .then(res => res.json())
+                    .then((data) => {
+                        this.filters    = data.reviews.filters;
+                        this.reviews    = data.reviews.data;
+                        this.pagination = data.reviews.pagination;
+                    })
+                    .catch(err => console.error('Something went wrong during the data update'))
+                    .finally(() => { this.isLoading = false } );
+            }
+        }
+    }
+</script>
