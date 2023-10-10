@@ -31,13 +31,13 @@ Overall, the Google Review plugin for Magento, with its seamless compatibility w
 1. Install the module using composer: 
 
 ```bash
-composer require magmodules/magento2-shopreview-hyva
+composer require magmodules/magento2-hyva-googlereviews
 ```
 
 2. Enable the module:
 
 ```bash
-bin/magento module:enable Magmodules_HyvaShopreview
+bin/magento module:enable Magmodules_HyvaGoogleReviewsSR
 ```
 
 3. Upgrade the database:
