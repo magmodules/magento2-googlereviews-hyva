@@ -1,5 +1,5 @@
 
-![magento-google-hyva](https://github.com/magmodules/magento2-googlereviews-hyva-dev/assets/24823946/7db96cbc-bd57-49d4-819e-720a5d58eb73)
+![magento-google-hyva](https://github.com/magmodules/magento2-googlereviews-hyva/assets/24823946/d3331cd8-048d-4c95-8d31-96af06b85367)
 
 
 
@@ -14,7 +14,7 @@ The Google Review Hyvä Compatibility plugin for the Magento Hyva theme has the 
 - [Hyvä](https://github.com/hyva-themes)
 - [Magmodules Google Reviews](https://www.magmodules.eu/magento2-google-reviews.html)    
 
-<img width="892" alt="magento-google-reviews" src="https://github.com/magmodules/magento2-googlereviews-hyva-dev/assets/24823946/12fc4545-dde5-4971-9130-6825a7e07998">
+<img width="892" alt="magento-google-reviews" src="https://github.com/magmodules/magento2-googlereviews-hyva/assets/24823946/32c1365d-2644-4c5f-aa81-ac15575aab60">
 
 
 ## About the Google Review Plugin
