@@ -1,0 +1,44 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/* @var \Magmodules\GoogleReviewsSR\Block\Widget\Review\Textual $block */
+$uniqId = rand();
+$logoSmall = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-small.png');
+
+$reviewsCount = $block->getReviewsCount();
+$reviewsCurrentRating = $block->getReviewsCurrentRating();
+$reviewsMaxRating = $block->getReviewsMaxRating();
+?>
+
+<section data-element="google-textual-widget-<?= $uniqId; ?>"
+         class="inline-flex items-center flex-wrap gap-3">
+    <?php if ($block->showIcons()): ?>
+        <img src="<?= $block->escapeUrl($logoSmall); ?>" width="24" height="24"
+            alt="<?= $block->escapeHtml(__('Google textual widget')); ?>" />
+    <?php endif;?>
+
+    <?php if ($block->showStars()): ?>
+        <?= $block->getLayout()
+                ->createBlock('Magento\Framework\View\Element\Template')
+                ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
+                ->setData('svgSize', '20')
+                ->setData('percent', $reviewsCurrentRating / $reviewsMaxRating * 100)
+                ->toHtml();
+        ?>
+    <?php endif;?>
+
+    <div class="text pt-0.5">
+        <?= $block->escapeHtml(__('Our store is rated with a')); ?>
+        <b><?= $block->escapeHtml($reviewsCurrentRating); ?></b>
+        <?= $block->escapeHtml(__('based on')); ?>
+        <b>
+            <?= $block->escapeHtml($reviewsCount); ?> 
+            <?= $reviewsCount > 1 
+                    ? $block->escapeHtml(__('reviews')) 
+                    : $block->escapeHtml(__('review')); ?>
+        </b>
+    </div>
+</section>

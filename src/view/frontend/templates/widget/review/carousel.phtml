@@ -1,0 +1,222 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/* @var \Magmodules\GoogleReviewsSR\Block\Widget\Review\Carousel $block */
+
+$uniqId = rand();
+$logoSmall = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-small.png');
+
+$reviewsMaxRating = $block->getReviewsMaxRating();
+
+if ($block->getTextLength() == 'small')  $txtLen = 2;
+if ($block->getTextLength() == 'medium') $txtLen = 4;
+if ($block->getTextLength() == 'large')  $txtLen = 6;
+?>
+
+<section data-element="google-carousel-widget-<?= $uniqId; ?>" 
+         x-data="GoogleCarousel_<?= $uniqId ?>">
+    
+    <div class="relative"
+         :class="{ 'px-10': options.arrows }"
+         :resize.window="resizeSlider"
+         @resize.window="resizeSlider"
+         @mouseover="options.autoplay ? clearInterval(interval) : null"
+         @mouseout="options.autoplay ? interval = setInterval(() => { arrowNext() }, options.autoplaySpeed) : null"
+         @touchstart="options.autoplay ? clearInterval(interval) : null"
+         @touchend="options.autoplay ? interval = setInterval(() => { arrowNext() }, options.autoplaySpeed) : null">
+
+         <div class="overflow-hidden select-none"
+             @mouseup="mouseEvent($event)"
+             @mousedown="mouseEvent($event)"
+             @touchend="mouseEvent($event)"
+             @touchstart="mouseEvent($event)">
+             
+             <div class="flex transition-transform"
+                :style="`transform: translateX(${currentTransform}); transition-duration: ${transformDuration};`"
+                :resize.window="setSLideStep($el)"
+                @resize.window="setSLideStep($el)">
+
+                <?php foreach ($reviews = $block->getReviews() as $review): ?>
+                    <div class="px-3" :style="{ 'min-width': slideWidth }">
+                        <div data-element="review-item"
+                            class="flex flex-col p-4 bg-white border border-gray-200 rounded-xl shadow h-full">
+                            
+                            <header class="flex items-center justify-between gap-5 pb-3 mb-5 border-b border-gray-200">
+                                <b class="name"><?= $block->escapeHtml($review['name']) ?></b>
+
+                                <?php if ($block->showStars()): ?>
+                                    <?php 
+                                        $starColor = $block->getSelectColor() ? $block->getSelectColor() : '#000000';
+                                    ?>
+
+                                    <?= $block->getLayout()
+                                        ->createBlock('Magento\Framework\View\Element\Template')
+                                        ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
+                                        ->setData('svgSize', '16')
+                                        ->setData('starColor', $starColor)
+                                        ->setData('percent', floatval($review['total']) / $reviewsMaxRating * 100)
+                                        ->toHtml();
+                                    ?>
+                                <?php endif;?>
+                            </header>
+
+                            <?php if (trim($review['comment'])): ?>
+                                <div class="comment mb-5 text-sm leading-6 opacity-70 overflow-hidden"
+                                    style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: <?=$block->escapeHtml($txtLen)?>;">
+                                    <?= $block->escapeHtml($review['comment']) ?>
+                                </div>
+                            <?php endif;?>
+
+                            <footer class="mt-auto grid-cols-[28px_1fr] items-center gap-3 pt-4 border-t border-gray-200
+                                        <?= !$block->showIcon() ? 'block' : 'grid' ?>">
+
+                                <?php if ($block->showIcon()): ?>
+                                    <img src="<?= $block->escapeUrl($logoSmall); ?>" width="28" height="28"
+                                        alt="<?= $block->escapeHtml(__('Google carousel widget')); ?>" />
+                                <?php endif;?>
+
+                                <span class="opacity-70 text-sm">
+                                    <?= $block->escapeHtml(__('A Google Review written')); ?>
+                                    <?= $block->escapeHtml($review['created']) ?>
+                                </span>
+                            </footer>
+                        </div>
+                    </div>
+                <?php endforeach;?>
+
+            </div>
+        </div>
+
+        <template x-if="options.arrows" >
+            <div class="slider-arrow">
+                <span class="arrow-left absolute left-0 bottom-1/2 translate-y-3 p-1 opacity-50
+                             cursor-pointer transition-opacity duration-300 hover:opacity-75"
+                      @click="arrowPrev">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                </span>
+
+                <span class="arrow-right absolute right-0 bottom-1/2 translate-y-3 p-1 opacity-50
+                             cursor-pointer transition-opacity duration-300 hover:opacity-75"
+                      @click="arrowNext">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                </span>
+            </div>
+        </template>
+    </div>
+</section>
+
+<script>
+    'use strict';
+
+    function GoogleCarousel_<?= $uniqId ?>() {
+        return {
+            options: {
+                arrows: <?= json_encode($block->showNavigationArrows()); ?>,
+                autoplay: <?= json_encode($block->isAutoplay()); ?>,
+                autoplaySpeed: 3000,
+                slidesToShow: 4,
+                breakpoints: {
+                    '639': 1,
+                    '1023': 2,
+                    '1279': 3,
+                    '2500': 4,
+                },
+            },
+
+            slideWidth: '100%',
+            slideCount: <?= count($block->getReviews()); ?>,
+            slideOnPage: 1,
+            activeSlidePage: 1,
+
+            wrapperWidth: 0,
+            stepWidth: 0,
+            currentTransform: '0',
+            transformDuration: '1.5s',
+
+            interval: null,
+            axisShiftX: 0, 
+
+            init() {
+                if (this.options.autoplay) {
+                    this.interval = setInterval(() => { this.arrowNext() }, this.options.autoplaySpeed);
+                }
+            },
+
+            setSlidePage(num) {
+                this.activeSlidePage = num;
+
+                if (!num) this.currentTransform = '0';
+
+                if ((this.wrapperWidth - this.stepWidth) >= this.stepWidth * (num - 1) && num) {
+                    this.currentTransform = `-${this.stepWidth * (num - 1)}px`;
+                } else {
+                    this.currentTransform = `-${this.wrapperWidth - this.stepWidth}px`;
+                }
+
+                setTimeout(() => { this.transformDuration = '1.5s' }, 50);
+            },
+
+            resizeSlider() {
+                // default state
+                this.slideWidth = `${100 / this.options.slidesToShow}%`;
+                this.slideOnPage = this.slideCount - this.options.slidesToShow;
+
+                const pObj = this.options.breakpoints,
+                    pArr = Object.keys(pObj).sort((a,b) => b - a),
+                    pLen = pArr.length;
+
+                for (let i = 0; i < pLen; i++) {
+                    if (window.innerWidth < +pArr[i]) { 
+                        this.slideWidth = `${100 / +pObj[pArr[i]]}%`;
+                        this.options.slidesToShow = +pObj[pArr[i]];
+                        this.slideOnPage = this.slideCount - +pObj[pArr[i]];
+                    }
+                }
+
+                // check active slide after resizing
+                if (this.activeSlidePage > this.slideOnPage) this.activeSlidePage = this.slideOnPage;
+            },
+
+            setSLideStep(el) {
+                setTimeout(() => {
+                    this.wrapperWidth = el.scrollWidth; 
+                    this.stepWidth = Math.ceil(el.clientWidth / this.options.slidesToShow);
+                    this.transformDuration = '0s';
+                    this.setSlidePage(this.activeSlidePage);
+                }, 50);
+            },
+
+            arrowNext() {
+                this.activeSlidePage + 1 <= this.slideOnPage
+                    ? this.setSlidePage(this.activeSlidePage + 1)
+                    : this.setSlidePage(1);
+            },
+
+            arrowPrev() {
+                this.activeSlidePage - 1 >= 1
+                    ? this.setSlidePage(this.activeSlidePage - 1)
+                    : this.setSlidePage(this.slideOnPage);
+            },
+
+            mouseEvent(event) {
+                if (event.type == 'mousedown' || event.type == 'touchstart') {
+                    this.axisShiftX = event.pageX || event.changedTouches[0].pageX;
+                } 
+
+                if (event.type == 'mouseup' || event.type == 'touchend') {
+                    let endTouch = event.pageX || event.changedTouches[0].pageX;
+
+                    if (endTouch < this.axisShiftX) this.arrowNext();
+                    if (endTouch > this.axisShiftX) this.arrowPrev();
+                }
+            }
+        }
+    }
+</script>
