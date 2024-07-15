@@ -9,7 +9,7 @@
     "require": {
       "magento/framework": "*",
       "hyva-themes/magento2-compat-module-fallback": "*",
-      "magmodules/magento2-googlereviews": "*"
+      "magmodules/magento2-googlereviews": "~3.0"
     },
     "autoload": {
       "files": [
