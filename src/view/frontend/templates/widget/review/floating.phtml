@@ -1,0 +1,176 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/* @var \Magmodules\GoogleReviewsSR\Block\Widget\Review\Floating $block */
+$uniqId = rand();
+$logoSmall = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-small.png');
+
+$reviewsCount = $block->getReviewsCount();
+$reviewsCurrentRating = $block->getReviewsCurrentRating();
+$reviewsMaxRating = $block->getReviewsMaxRating();
+
+if ($block->getWidgetPosition() == 'top_right') $floatingClass = 'top-4 right-4';
+if ($block->getWidgetPosition() == 'top_left') $floatingClass = 'top-4 left-4';
+if ($block->getWidgetPosition() == 'bottom_right') $floatingClass = 'bottom-4 right-4';
+if ($block->getWidgetPosition() == 'bottom_left') $floatingClass = 'bottom-4 left-4';
+?>
+
+<div x-data="FloatingWidget_<?= $uniqId ?>">
+    <section data-element="google-floating-widget-<?= $uniqId; ?>" 
+             @click="show = !show"
+             class="fixed z-30 flex-col items-center justify-center gap-1 px-4 py-3
+                    bg-white border border-gray-200 rounded-xl shadow group
+                    <?= !$block->showOnCheckout() ? 'no-checkout' : '' ?> <?= $floatingClass; ?>
+                    <?= !$block->showReviewLink() ? 'cursor-default' : 'cursor-pointer'; ?> 
+                    <?= !$block->showOnMobile() ? 'hidden md:inline-flex' : 'inline-flex'; ?>"
+    >
+
+        <?php if ($block->showGoogleIcon()): ?>
+            <img src="<?= $block->escapeUrl($logoSmall); ?>" width="24" height="24"
+                    alt="<?= $block->escapeHtml(__('Google floating widget')); ?>" />
+        <?php endif; ?>
+
+        <?= $block->getLayout()
+                ->createBlock('Magento\Framework\View\Element\Template')
+                ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
+                ->setData('svgSize', '18')
+                ->setData('percent', $reviewsCurrentRating / $reviewsMaxRating * 100)
+                ->toHtml();
+        ?>
+
+        <div data-element="box-information" 
+            class="flex items-center justify-between gap-4 text-xs [&_span]:relative [&_span]:top-0.5">
+            <span>
+                <?= $block->escapeHtml($reviewsCount); ?> 
+                <?= $reviewsCount > 1 
+                        ? $block->escapeHtml(__('reviews')) 
+                        : $block->escapeHtml(__('review')); ?>
+            </span>
+
+            <?php if ($block->showReviewLink()): ?>
+                <span data-element="link-icon"
+                    class="h-3.5 text-blue-500 transition-colors duration-300 group-hover:text-blue-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                </span>
+            <?php endif;?>
+        </div>
+    </section>
+
+    <?php if ($block->showReviewLink()): ?>
+        <div data-element="google-floating-reviews-<?= $uniqId; ?>"
+             class="fixed z-50 w-[90%] duration-300
+                <?= $block->getShowReviews() == 'popup' 
+                ? 'top-1/2 left-1/2 max-w-[480px] max-h-[90vh] transition-opacity 
+                -translate-x-1/2 -translate-y-1/2 [&>div]:max-h-[90vh] [&>div]:rounded-xl' 
+                : 'top-0 right-0 h-screen max-w-[400px] [&>div]:max-h-screen transition-transform' ?>"
+
+                style="display: none;"
+                x-show="show"
+                x-transition:enter="ease-in-out duration-300"
+                x-transition:enter-start="<?= $block->getShowReviews() == 'popup' ? 'opacity-0 invisible' : 'translate-x-[105%]'; ?>"
+                x-transition:enter-end="<?= $block->getShowReviews() == 'popup' ? 'opacity-100 visible' : 'translate-x-0'; ?>"
+                x-transition:leave="ease-in-out duration-300"
+                x-transition:leave-start="<?= $block->getShowReviews() == 'popup' ? 'opacity-100 visible' : 'translate-x-0'; ?>"
+                x-transition:leave-end="<?= $block->getShowReviews() == 'popup' ? 'opacity-0 invisible' : 'translate-x-[105%]'; ?>">
+
+            <div class="grid grid-rows-[auto_1fr] bg-white border border-gray-200">
+                <div data-element="reviews-summary" 
+                     class="relative grid justify-center gap-3 p-4 pb-8 border-b border-gray-200 text-center">
+
+                    <img src="<?= $block->escapeUrl($logoSmall); ?>" width="60" height="60"
+                         alt="<?= $block->escapeHtml(__('Google floating widget')); ?>" class="mx-auto" />
+
+                    <div>
+                        <div data-element="reviews-summary-stars" class="mb-2">
+                            <?= $block->getLayout()
+                                ->createBlock('Magento\Framework\View\Element\Template')
+                                ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
+                                ->setData('svgSize', '28')
+                                ->setData('percent', $reviewsCurrentRating / $reviewsMaxRating * 100)
+                                ->toHtml();
+                            ?>
+                        </div>
+
+                        <div data-element="reviews-summary-text">
+                            <?= $block->escapeHtml(__('Rated with a')); ?>
+                            <b class="text-[#ffad0f]"><?= $block->escapeHtml($reviewsCurrentRating); ?></b>
+                            <?= $block->escapeHtml(__('out of')); ?>
+                            <?= $block->escapeHtml($reviewsMaxRating); ?>
+                            <?= $block->escapeHtml(__('based on')); ?>
+                            <b class="text-[#ffad0f]">
+                                <?= $block->escapeHtml($reviewsCount); ?> 
+                                <?= $reviewsCount > 1 
+                                        ? $block->escapeHtml(__('reviews')) 
+                                        : $block->escapeHtml(__('review')); ?>
+                            </b>
+                        </div>
+                    </div>
+
+                    <span data-element="close"
+                          @click="show = !show"
+                          class="absolute top-3 right-3 flex p-1.5 rounded-full bg-gray-300 text-white
+                                 opacity-80 cursor-pointer transition-opacity duration-300 hover:opacity-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </span>
+                </div>
+
+                <div data-element="reviews" class="h-full overflow-auto max-h-[calc(100%-10px)]">
+                    <?php foreach ($reviews = $block->getReviews() as $review): ?>
+                        <div data-element="review-item" 
+                             class="grid gap-2.5 p-5 border-b border-gray-200 last:border-b-0">
+
+                            <b class="name text-base"><?= $block->escapeHtml($review['name']) ?></b>
+                            <div class="summary flex gap-3 -ml-0.5">
+                                <?= $block->getLayout()
+                                    ->createBlock('Magento\Framework\View\Element\Template')
+                                    ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
+                                    ->setData('svgSize', '16')
+                                    ->setData('percent', floatval($review['total']) / $reviewsMaxRating * 100)
+                                    ->toHtml();
+                                ?>
+
+                                <span class="opacity-60 text-base"><?= $block->escapeHtml($review['created']) ?></span>
+                            </div>
+                            <div class="comment text-sm leading-6"><?= $block->escapeHtml($review['comment']) ?></div>
+                        </div>
+                    <?php endforeach;?>
+                </div>
+            </div>
+        </div>
+
+        <span data-element="google-floating-overlay-<?= $uniqId; ?>" 
+                @click="show = !show"
+                class="fixed top-0 right-0 bottom-0 left-0 z-40 bg-black/40"
+                style="display: none;"
+                x-show="show"
+                x-transition:enter="ease-in-out duration-300"
+                x-transition:enter-start="opacity-0 invisible"
+                x-transition:enter-end="opacity-100 visible"
+                x-transition:leave="ease-in-out duration-300"
+                x-transition:leave-start="opacity-100 visible"
+                x-transition:leave-end="opacity-0 invisible"></span>
+    <?php endif;?>
+</div>
+
+<script>
+    'use strict';
+
+    function FloatingWidget_<?= $uniqId ?>() {
+        return {
+            show: false,
+        }
+    }
+</script>
+
+<style>
+    .checkout-index-index [data-element*="google-floating-widget"].no-checkout {
+        display: none;
+    }
+</style>

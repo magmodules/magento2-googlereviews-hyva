@@ -1,0 +1,375 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/* @var \Magmodules\GoogleReviewsSR\Block\Widget\Review\Overview $block */
+
+$uniqId = rand();
+$logoBig = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-big.png');
+
+$reviewsCount = $block->getReviewsCount();
+$reviewsCurrentRating = $block->getReviewsCurrentRating();
+$reviewsMaxRating = $block->getReviewsMaxRating();
+
+$extraClass = !$block->showSummaryBlock() &&
+              !$block->showRatingFilter() &&
+              !$block->showWriteReviewButton() ? '!grid-cols-1' : '';
+
+$reviewsPerStars = $block->getReviewsPerStars();
+$starsItem = ['5', '4', '3', '2', '1'];
+?>
+
+<section data-element="google-overview-widget-<?= $uniqId; ?>"
+         x-data="GoogleOverview_<?= $uniqId ?>"
+         x-init="getSortOrder"
+         class="grid items-start gap-10 md:grid-cols-[300px_1fr] md:overflow-x-clip
+                lg:grid-cols-[380px_1fr] <?= $extraClass; ?>">
+
+    <?php if ($block->showSummaryBlock() || $block->showRatingFilter() || $block->showWriteReviewButton()): ?>
+        <div data-element="sidebar" class="grid gap-5 md:sticky md:top-5">
+            <?php if ($block->showSummaryBlock()): ?>
+                <div data-element="summary"
+                     class="px-5 py-6 bg-white border border-gray-200 rounded-xl shadow [&_[data-element=box-stars]]:-mr-1">
+
+                    <header class="flex items-center justify-between gap-6 pb-5 border-b border-gray-200">
+                        <img src="<?= $block->escapeUrl($logoBig); ?>" width="138" height="46"
+                             alt="<?= $block->escapeHtml(__('Google overview widget')); ?>"
+                             class="w-full max-w-[88px] sm:max-w-[116px] lg:max-w-[138px]" />
+
+                        <div class="flex flex-col items-end">
+                            <b class="text-[#ffad0f]"><?= $reviewsCurrentRating; ?>/<?= $reviewsMaxRating; ?></b>
+                            <?= $block->getLayout()
+                                    ->createBlock('Magento\Framework\View\Element\Template')
+                                    ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
+                                    ->setData('svgSize', '24')
+                                    ->setData('percent', $reviewsCurrentRating / $reviewsMaxRating * 100)
+                                    ->toHtml();
+                            ?>
+                        </div>
+                    </header>
+
+                    <div data-element="box-information"
+                         class="mt-4 mb-7 text-sm">
+                        <?= $block->escapeHtml(__('Rated with a')); ?>
+                        <b class="text-[#ffad0f]"><?= $block->escapeHtml($reviewsCurrentRating); ?></b>
+                        <?= $block->escapeHtml(__('out of a')); ?>
+                        <?= $block->escapeHtml($reviewsMaxRating); ?>
+                        <?= $block->escapeHtml(__('based on')); ?>
+                        <b class="text-[#ffad0f]">
+                            <?= $block->escapeHtml($reviewsCount); ?>
+                            <?= $reviewsCount > 1
+                                    ? $block->escapeHtml(__('reviews'))
+                                    : $block->escapeHtml(__('review')); ?>
+                        </b>
+                    </div>
+
+                    <div data-element="stars-counting" class="grid gap-3">
+                        <?php foreach ($starsItem as $star): ?>
+                            <div data-element="stars-item" 
+                                 class="grid grid-cols-[auto_1fr_30px] gap-3 text-sm">
+                                <span class="opacity-70"><?= $star; ?></span>
+
+                                <div class="w-full flex h-6 border border-gray-200 rounded-xl shadow">
+                                    <div class="rounded-xl
+                                                <?= $star == '5' ? 'bg-[#8fdaa0]' : '' ?>
+                                                <?= $star == '4' ? 'bg-[#c1e98f]' : '' ?>
+                                                <?= $star == '3' ? 'bg-[#f1d86d]' : '' ?>
+                                                <?= $star == '2' ? 'bg-[#f2ba63]' : '' ?>
+                                                <?= $star == '1' ? 'bg-[#e2805d]' : '' ?>" 
+                                         style="width: <?= $reviewsPerStars[$star] / $reviewsCount * 100 ?>%;"></div>
+                                </div>
+
+                                <span class="opacity-70 text-right"><?= $reviewsPerStars[$star] ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <?php if ($block->showFirstAndLast()): ?>
+                        <div data-element="first-and-last" class="text-sm opacity-70 mt-7">
+                            <?= $block->escapeHtml(__('First Review')); ?>
+                            <span><?= $block->getFirstDate() ?></span>
+
+                            <?= $block->escapeHtml(__('and last Review')); ?>
+                            <span><?= $block->getLastDate() ?></span>
+                        </div>
+                    <?php endif;?>
+                </div>
+            <?php endif;?>
+
+            <?php if ($block->showRatingFilter()): ?>
+                <div data-element="rating-filter"
+                     class="px-4 pt-5 pb-6 bg-white border border-gray-200 rounded-xl shadow">
+
+                    <h3 class="mb-5 ml-1 text-lg">
+                        <?= $block->escapeHtml(__('Filter on Rating')); ?>
+                    </h3>
+                    <div class="grid grid-cols-[repeat(auto-fill,_minmax(115px,_1fr))] gap-2.5
+                                md:grid-cols-[repeat(auto-fill,_minmax(100px,_1fr))]">
+                        <?php for($index = 5; $index > 0; $index--): ?>
+                            <div data-filter="<?= $index; ?>"
+                                 @click="() => filterByStars(<?= $index; ?>)"
+                                 class="flex items-center opacity-50 transition-opacity duration-300 cursor-pointer
+                                        hover:opacity-75"
+                                 :class="{ '!opacity-100': activeFilter.includes(<?= $index; ?>)}">
+                                <?= $block->getLayout()
+                                        ->createBlock('Magento\Framework\View\Element\Template')
+                                        ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
+                                        ->setData('svgSize', '20')
+                                        ->setData('percent', $index * 20)
+                                        ->toHtml();
+                                ?>
+                            </div>
+                        <?php endfor; ?>
+
+                        <div data-filter="clear" 
+                             @click="clearFilter"
+                             class="text-sm flex items-center opacity-50 transition-opacity duration-300
+                                    cursor-pointer hover:opacity-75 md:justify-center">
+                            <?= $block->escapeHtml(__('Clear Filter')); ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif;?>
+
+            <?php if ($block->showWriteReviewButton()): ?>
+                <a  href="<?= $block->escapeUrl($block->getReviewUrl()); ?>" 
+                    data-element="write-review"
+                    class="p-3 bg-blue-500 rounded-xl text-white text-center transition-colors duration-300 hover:bg-blue-700">
+                    <?= $block->escapeHtml(__('Write a Review')); ?>
+                </a>
+            <?php endif;?>
+        </div>
+    <?php endif;?>
+
+    <div class="box">
+        <?php if ($block->showSortingOption()): ?>
+            <div data-element="box-sorting"
+                 class="flex items-center justify-center gap-2 flex-wrap pb-3 mb-6 
+                        border-b border-gray-200 lg:justify-end">
+
+                <span class="hidden mr-2 opacity-70 lg:inline-block">
+                    <?= $block->escapeHtml(__('Sort By')); ?>
+                </span>
+                <span data-element="button" data-sort="newest"
+                      @click="() => sortBy('newest')"
+                      class="px-5 py-1.5 bg-blue-500 transition-colors duration-300 hover:bg-blue-700
+                            cursor-pointer text-white text-sm rounded-xl lg:px-7"
+                      :class="{ 'bg-blue-700': activeSorting === 'newest' }">
+                    <?= $block->escapeHtml(__('Newest')); ?>
+                </span>
+                <span data-element="button" data-sort="oldest"
+                      @click="() => sortBy('oldest')"
+                      class="px-5 py-1.5 bg-blue-500 transition-colors duration-300 hover:bg-blue-700
+                             cursor-pointer text-white text-sm rounded-xl lg:px-7"
+                      :class="{ 'bg-blue-700': activeSorting === 'oldest' }">
+                    <?= $block->escapeHtml(__('Oldest')); ?>
+                </span>
+                <span data-element="button" data-sort="lowest"
+                      @click="() => sortBy('lowest')"
+                      class="px-5 py-1.5 bg-blue-500 transition-colors duration-300 hover:bg-blue-700
+                             cursor-pointer text-white text-sm rounded-xl lg:px-7"
+                      :class="{ 'bg-blue-700': activeSorting === 'lowest' }">
+                    <?= $block->escapeHtml(__('Lowest')); ?>
+                </span>
+                <span data-element="button" data-sort="highest"
+                      @click="() => sortBy('highest')"
+                      class="px-5 py-1.5 bg-blue-500 transition-colors duration-300 hover:bg-blue-700
+                             cursor-pointer text-white text-sm rounded-xl lg:px-7"
+                      :class="{ 'bg-blue-700': activeSorting === 'highest' }">
+                    <?= $block->escapeHtml(__('Highest')); ?>
+                </span>
+            </div>
+        <?php endif;?>
+
+        <div data-element="box-review" class="flex flex-col">
+
+        <div data-element="review-item" 
+                     data-rating="3"
+                     data-time="02 Nov 2023"
+                     class="mb-4 pb-4 border-b border-gray-200"
+                     :class="{
+                        'hidden': filtering,
+                        '!block [&~[data-element=no-data]]:hidden': activeFilter.includes(3)
+                     }"
+                     :style="{ 'order': sortOrder.active[0] }">
+
+                    <header class="flex gap-5 items-center justify-between mb-3">
+                        <b class="name">Test test</b>
+                        <div class="summary text-sm flex items-center gap-4">
+                            <span class="relative top-0.5 opacity-50">
+                            02 Nov 2023
+                            </span>
+
+                            <?= $block->getLayout()
+                                ->createBlock('Magento\Framework\View\Element\Template')
+                                ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
+                                ->setData('svgSize', '20')
+                                ->setData('percent', 60)
+                                ->toHtml();
+                            ?>
+                        </div>
+                    </header>
+
+                    <div class="comment text-sm">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Reprehenderit, alias. Sed doloribus nulla
+                         commodi animi voluptas, eum qui 
+                        dolorem exercitationem perspiciatis delectus eveniet provident officia accusamus.
+                         Aut numquam repudiandae perferendis?    
+                    </div>
+                </div>
+
+            <?php foreach ($reviews = $block->getReviews() as $index=>$review): ?>
+                <div data-element="review-item" 
+                     data-rating="<?= floatval($review['total']); ?>"
+                     data-time="<?= $block->escapeHtml($review['created']) ?>"
+                     class="mb-4 pb-4 border-b border-gray-200"
+                     :class="{
+                        'hidden': filtering,
+                        '!block [&~[data-element=no-data]]:hidden': activeFilter.includes(<?= floatval($review['total']); ?>)
+                     }"
+                     :style="{ 'order': sortOrder.active[<?= $index; ?>] }">
+
+                    <header class="flex gap-5 items-center justify-between mb-3">
+                        <b class="name"><?= $block->escapeHtml($review['name']) ?></b>
+                        <div class="summary text-sm flex items-center gap-4">
+                            <span class="relative top-0.5 opacity-50">
+                                <?= $block->escapeHtml($review['created']) ?>
+                            </span>
+
+                            <?= $block->getLayout()
+                                ->createBlock('Magento\Framework\View\Element\Template')
+                                ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
+                                ->setData('svgSize', '20')
+                                ->setData('percent', floatval($review['total']) / $reviewsMaxRating * 100)
+                                ->toHtml();
+                            ?>
+                        </div>
+                    </header>
+
+                    <div class="comment text-sm"><?= $block->escapeHtml($review['comment']) ?></div>
+                </div>
+            <?php endforeach;?>
+
+            <div data-element="review-item" 
+                     data-rating="1"
+                     data-time="13 Jan 2018"
+                     class="mb-4 pb-4 border-b border-gray-200"
+                     :class="{
+                        'hidden': filtering,
+                        '!block [&~[data-element=no-data]]:hidden': activeFilter.includes(1)
+                     }"
+                     :style="{ 'order': sortOrder.active[11] }">
+
+                    <header class="flex gap-5 items-center justify-between mb-3">
+                        <b class="name">Test test 2</b>
+                        <div class="summary text-sm flex items-center gap-4">
+                            <span class="relative top-0.5 opacity-50">
+                            13 Jan 2018
+                            </span>
+
+                            <?= $block->getLayout()
+                                ->createBlock('Magento\Framework\View\Element\Template')
+                                ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
+                                ->setData('svgSize', '20')
+                                ->setData('percent', 20)
+                                ->toHtml();
+                            ?>
+                        </div>
+                    </header>
+
+                    <div class="comment text-sm">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Reprehenderit, alias. Sed doloribus nulla
+                         commodi animi voluptas, eum qui 
+                        dolorem exercitationem perspiciatis delectus eveniet provident officia accusamus.
+                         Aut numquam repudiandae perferendis?    
+                    </div>
+                </div>
+            
+
+            <h3 data-element="no-data"
+                :class="{ 
+                    'block': filtering,
+                    'hidden': !filtering,
+                }">
+                <?= $block->escapeHtml(__("Sorry, there's no reviews for this filter.")); ?>
+            </h3>
+        </div>
+    </div>
+</section>
+
+<script>
+    'use strict';
+
+    function GoogleOverview_<?= $uniqId ?>() {
+        return {
+            sortOrder: {
+                active: [],
+                base: [],
+                newest: [],
+                oldest: [],
+                lowest: [],
+                highest: [],
+            },
+            activeSorting: '',
+            activeFilter: [],
+            filtering: false,
+            reviews: document.querySelectorAll('[data-element="google-overview-widget-<?= $uniqId; ?>"] [data-element="review-item"]'),
+
+            filterByStars(star) {
+                const index = this.activeFilter.indexOf(star);
+                this.activeReview = 0;
+
+                index === -1 
+                    ? this.activeFilter.push(star)
+                    : this.activeFilter.splice(index, 1);
+
+                this.filtering = this.activeFilter.length > 0;
+            },
+
+            clearFilter() {
+                this.activeFilter = [];
+                this.filtering = false;
+            },
+
+            getSortOrder() {
+                // Get Base Sort Order
+                for (let i = 0; i < this.reviews.length; i++) {
+                    this.sortOrder.base.push(i);
+                }
+
+                // Get all sorting arrays
+                Array.from(this.reviews).forEach((item) => {
+                    const stars = +item.getAttribute('data-rating');
+                    const time = new Date(item.getAttribute('data-time')).getTime()/100000;
+
+                    this.sortOrder.oldest.push(time);
+                    this.sortOrder.newest.push(time - time * 2);
+                    this.sortOrder.lowest.push(stars);
+                    this.sortOrder.highest.push(stars - stars * 2);
+                });
+
+                this.sortOrder.active = this.sortOrder.base;
+            },
+
+            sortBy(type) {
+                if (this.activeSorting === type) {
+                    this.sortOrder.active = this.sortOrder.base;
+                    this.activeSorting = '';
+                } else {
+                    this.sortOrder.active = this.sortOrder[type];
+                    this.activeSorting = type;
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+    @media screen and (min-width: 769px) {
+        div.page-wrapper {
+            overflow: unset;
+        }
+    }
+</style>
