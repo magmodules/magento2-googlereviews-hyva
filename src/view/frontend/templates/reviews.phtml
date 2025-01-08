@@ -1,12 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright © Magmodules.eu. All rights reserved.
  * See COPYING.txt for license details.
  */
-?>
-<?php
-/* @var Magento\Framework\View\Element\Template $block */
-/* @var Magmodules\GoogleReviewsSR\ViewModel\Reviews $viewModel */
+
+ use Magento\Framework\View\Element\Template;
+ use Magmodules\GoogleReviewsSR\ViewModel\Reviews;
+ use Magento\Framework\Escaper;
+
+/** @var Template $block */
+/** @var Reviews $viewModel */
+/** @var Escaper $escaper */
+
 $viewModel = $block->getViewModel();
 ?>
 
@@ -23,7 +28,7 @@ $viewModel = $block->getViewModel();
                   @click="showFilters = !showFilters">
                 
                 <span class="hidden md:block">
-                    <?= $block->escapeHtml(__('Filter Reviews')); ?>
+                    <?= $escaper->escapeHtml(__('Filter Reviews')); ?>
                 </span>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 9.75V10.5" />
@@ -84,17 +89,17 @@ $viewModel = $block->getViewModel();
                     </div>
 
                     <div class="account-text hidden text-sm md:block">
-                        <?= $block->escapeHtml(__('Write your review')); ?>
+                        <?= $escaper->escapeHtml(__('Write your review')); ?>
                         <a class="text-[#3879bd] transition-opacity duration-300 hover:opacity-80 underline underline-offset-2"
-                           :href="filters.accounts.data[0].url" target="_blank"><?= $block->escapeHtml(__('here')); ?></a>
+                           :href="filters.accounts.data[0].url" target="_blank"><?= $escaper->escapeHtml(__('here')); ?></a>
                     </div>
 
                     <div class="account-score -mt-2 text-sm md:hidden">
-                        <?= $block->escapeHtml(__('Rated with a')); ?>
+                        <?= $escaper->escapeHtml(__('Rated with a')); ?>
                         <b x-text="filters.accounts.data[0].avgRatingScore"></b>
-                        <?= $block->escapeHtml(__('based on')); ?>
+                        <?= $escaper->escapeHtml(__('based on')); ?>
                         <b x-text="filters.accounts.data[0].total"></b>
-                        <?= $block->escapeHtml(__('reviews')); ?>
+                        <?= $escaper->escapeHtml(__('reviews')); ?>
                     </div>
                 </div>
             </div>
@@ -102,9 +107,9 @@ $viewModel = $block->getViewModel();
             <div class="account-description hidden px-5 py-3 bg-white shadow rounded-lg md:grid gap-2 lg:gap-0">
                 <div class="flex gap-8 items-center justify-between">
                     <h3 class="font-bold text-xl">
-                        <?= $block->escapeHtml(__('Is')); ?>
+                        <?= $escaper->escapeHtml(__('Is')); ?>
                         <span x-text="filters.accounts.data[0].frontendTitle || filters.accounts.data[0].title"></span>
-                        <?= $block->escapeHtml(__('Safe?')); ?>
+                        <?= $escaper->escapeHtml(__('Safe?')); ?>
                     </h3>
 
                     <div class="review-wrapper flex gap-2 items-end -mr-1 whitespace-nowrap">
@@ -155,16 +160,16 @@ $viewModel = $block->getViewModel();
 
                 <div class="flex gap-8 items-start justify-between text-sm">
                     <p>
-                        <?= $block->escapeHtml(__('Read')); ?>
+                        <?= $escaper->escapeHtml(__('Read')); ?>
                         <b x-text="filters.accounts.data[0].total"></b>
-                        <b><?= $block->escapeHtml(__('reviews')); ?></b>
-                        <?= $block->escapeHtml(__('about this online store & check they are safe.')); ?>
+                        <b><?= $escaper->escapeHtml(__('reviews')); ?></b>
+                        <?= $escaper->escapeHtml(__('about this online store & check they are safe.')); ?>
                     </p>
 
                     <a class="text-[#3879bd] transition-opacity duration-300 hover:opacity-80 
                                 underline underline-offset-2 whitespace-nowrap"
                        :x-show="filters.accounts.data[0].url"
-                       :href="filters.accounts.data[0].url" target="_blank"><?= $block->escapeHtml(__('Submit a review')); ?></a>
+                       :href="filters.accounts.data[0].url" target="_blank"><?= $escaper->escapeHtml(__('Submit a review')); ?></a>
                 </div>
             </div>
         </div>
@@ -237,7 +242,7 @@ $viewModel = $block->getViewModel();
         </div>
 
         <div class="text-stone-600 text-sm" x-show="!reviews.length">
-            <?= $block->escapeHtml(__('No reviews data available')); ?>
+            <?= $escaper->escapeHtml(__('No reviews data available')); ?>
         </div>  
     </section>
 
@@ -308,7 +313,7 @@ $viewModel = $block->getViewModel();
         <div class="h-full bg-white">
             <div class="header relative bg-stone-100 px-3 py-2 text-stone-800 md:px-4 md-py-3">
                 <h2 class="text-xl">
-                    <?= $block->escapeHtml(__('Filter Reviews')); ?>
+                    <?= $escaper->escapeHtml(__('Filter Reviews')); ?>
                 </h2>
                 <span class="absolute top-2 right-2 cursor-pointer transition-opacity duration-300 hover:opacity-80"
                       @click="showFilters = !showFilters">
@@ -323,7 +328,7 @@ $viewModel = $block->getViewModel();
                 <template x-if="filters.accounts.enabled && filters.accounts.data.length">
                     <div class="filters-container mb-4 pb-5 border-b border-stone-300">
                         <h3 class="text-stone-700 text-lg font-bold mb-2">
-                            <?= $block->escapeHtml(__('Filter on account:')); ?>
+                            <?= $escaper->escapeHtml(__('Filter on account:')); ?>
                         </h3>
                     
                         <div class="review-filters text-sm text-stone-600 flex flex-wrap gap-x-8 gap-y-4">
@@ -332,7 +337,7 @@ $viewModel = $block->getViewModel();
                                 <input type="checkbox" id="accounts-filter-all" name="accounts" value="all" 
                                        @click="saveForUpdate('filterAccounts', 'all')">
                                 <span>
-                                    <?= $block->escapeHtml(__('All Accounts')); ?>
+                                    <?= $escaper->escapeHtml(__('All Accounts')); ?>
                                 </span>
                             </label>
 
@@ -361,7 +366,7 @@ $viewModel = $block->getViewModel();
                 <template x-if="filters.locales.enabled && filters.locales.data.length">
                     <div class="filters-container mb-4 pb-5 border-b border-stone-300">
                         <h3 class="text-stone-700 text-lg font-bold mb-2">
-                            <?= $block->escapeHtml(__('Filter on language:')); ?>
+                            <?= $escaper->escapeHtml(__('Filter on language:')); ?>
                         </h3>
                     
                         <div class="review-filters text-sm text-stone-600 flex flex-wrap gap-x-8 gap-y-4">
@@ -370,7 +375,7 @@ $viewModel = $block->getViewModel();
                                 <input type="checkbox" id="locales-filter-all" name="locales" value="all" 
                                        @click="saveForUpdate('filterLocales', 'all')">
                                 <span>
-                                    <?= $block->escapeHtml(__('All Languages')); ?>
+                                    <?= $escaper->escapeHtml(__('All Languages')); ?>
                                 </span>
                             </label>
 
@@ -394,7 +399,7 @@ $viewModel = $block->getViewModel();
                 <template x-if="filters.ratings.enabled && filters.ratings.data.length">
                     <div class="filters-container mb-4 pb-5 border-b border-stone-300">
                         <h3 class="text-stone-700 text-lg font-bold mb-2">
-                            <?= $block->escapeHtml(__('Filter on review:')); ?>
+                            <?= $escaper->escapeHtml(__('Filter on review:')); ?>
                         </h3>
                     
                         <div class="review-filters text-sm text-stone-600 flex flex-wrap gap-x-8 gap-y-4">
@@ -403,7 +408,7 @@ $viewModel = $block->getViewModel();
                                 <input type="checkbox" id="ratings-filter-all" name="ratings" value="all" 
                                        @click="saveForUpdate('filterReview', 'all')">
                                 <span>
-                                    <?= $block->escapeHtml(__('All Reviews')); ?>
+                                    <?= $escaper->escapeHtml(__('All Reviews')); ?>
                                 </span>
                             </label>
 
@@ -468,7 +473,7 @@ $viewModel = $block->getViewModel();
                 <template x-if="filters.years.enabled && filters.years.data.length">
                     <div class="filters-container mb-4 pb-5 border-b border-stone-300">
                         <h3 class="text-stone-700 text-lg font-bold mb-2">
-                            <?= $block->escapeHtml(__('Filter on year:')); ?>
+                            <?= $escaper->escapeHtml(__('Filter on year:')); ?>
                         </h3>
                     
                         <div class="review-filters text-sm text-stone-600 flex flex-wrap gap-x-8 gap-y-4">
@@ -490,7 +495,7 @@ $viewModel = $block->getViewModel();
 
                 <button class="btn btn-primary mt-5 text-base py-1"
                         @click="updateReviews">
-                    <?= $block->escapeHtml(__('Apply filters')); ?>
+                    <?= $escaper->escapeHtml(__('Apply filters')); ?>
                 </button>
             </div>
         </div>

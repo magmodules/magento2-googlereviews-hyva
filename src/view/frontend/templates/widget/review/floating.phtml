@@ -1,12 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright © Magmodules.eu. All rights reserved.
  * See COPYING.txt for license details.
  */
 
-/* @var \Magmodules\GoogleReviewsSR\Block\Widget\Review\Floating $block */
-$uniqId = rand();
-$logoSmall = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-small.png');
+ use Magmodules\GoogleReviewsSR\Block\Widget\Review\Floating;
+ use Magento\Framework\Escaper;
+ use Hyva\Theme\ViewModel\HeroiconsOutline;
+ use Hyva\Theme\Model\ViewModelRegistry;
+
+/** @var Floating $block */
+/** @var Escaper $escaper */
+/** @var HeroiconsOutline $heroicons */
+
+$uniqId = $block->getUniqueId();
 
 $reviewsCount = $block->getReviewsCount();
 $reviewsCurrentRating = $block->getReviewsCurrentRating();
@@ -16,6 +23,9 @@ if ($block->getWidgetPosition() == 'top_right') $floatingClass = 'top-4 right-4'
 if ($block->getWidgetPosition() == 'top_left') $floatingClass = 'top-4 left-4';
 if ($block->getWidgetPosition() == 'bottom_right') $floatingClass = 'bottom-4 right-4';
 if ($block->getWidgetPosition() == 'bottom_left') $floatingClass = 'bottom-4 left-4';
+
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+$reviewLabel = $reviewsCount > 1 ? __('reviews') : __('review');
 ?>
 
 <div x-data="FloatingWidget_<?= $uniqId ?>">
@@ -29,33 +39,26 @@ if ($block->getWidgetPosition() == 'bottom_left') $floatingClass = 'bottom-4 lef
     >
 
         <?php if ($block->showGoogleIcon()): ?>
-            <img src="<?= $block->escapeUrl($logoSmall); ?>" width="24" height="24"
-                    alt="<?= $block->escapeHtml(__('Google floating widget')); ?>" />
+            <img src="<?= $escaper->escapeUrl($block->getSmallLogoUrl()); ?>" width="26" height="26"
+                 alt="<?= $escaper->escapeHtmlAttr(__('Google floating widget')); ?>" />
         <?php endif; ?>
 
         <?= $block->getLayout()
                 ->createBlock('Magento\Framework\View\Element\Template')
                 ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
-                ->setData('svgSize', '18')
+                ->setData('svgSize', '20')
                 ->setData('percent', $reviewsCurrentRating / $reviewsMaxRating * 100)
                 ->toHtml();
         ?>
 
         <div data-element="box-information" 
             class="flex items-center justify-between gap-4 text-xs [&_span]:relative [&_span]:top-0.5">
-            <span>
-                <?= $block->escapeHtml($reviewsCount); ?> 
-                <?= $reviewsCount > 1 
-                        ? $block->escapeHtml(__('reviews')) 
-                        : $block->escapeHtml(__('review')); ?>
-            </span>
+            <?= $escaper->escapeHtml(__('<span>%1 %2</span>', $reviewsCount, $reviewLabel), ['span']); ?>
 
             <?php if ($block->showReviewLink()): ?>
                 <span data-element="link-icon"
-                    class="h-3.5 text-blue-500 transition-colors duration-300 group-hover:text-blue-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                    </svg>
+                      class="h-3.5 text-blue-500 transition-colors duration-300 group-hover:text-blue-700">
+                    <?= $heroicons->externalLinkHtml('', 14, 14, ["style" => "stroke-width: 1.5"]); ?>
                 </span>
             <?php endif;?>
         </div>
@@ -82,42 +85,29 @@ if ($block->getWidgetPosition() == 'bottom_left') $floatingClass = 'bottom-4 lef
                 <div data-element="reviews-summary" 
                      class="relative grid justify-center gap-3 p-4 pb-8 border-b border-gray-200 text-center">
 
-                    <img src="<?= $block->escapeUrl($logoSmall); ?>" width="60" height="60"
-                         alt="<?= $block->escapeHtml(__('Google floating widget')); ?>" class="mx-auto" />
+                    <img src="<?= $escaper->escapeUrl($block->getSmallLogoUrl()); ?>" width="60" height="60"
+                         alt="<?= $escaper->escapeHtmlAttr(__('Google floating widget')); ?>" class="mx-auto" />
 
                     <div>
                         <div data-element="reviews-summary-stars" class="mb-2">
                             <?= $block->getLayout()
                                 ->createBlock('Magento\Framework\View\Element\Template')
                                 ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
-                                ->setData('svgSize', '28')
+                                ->setData('svgSize', '30')
                                 ->setData('percent', $reviewsCurrentRating / $reviewsMaxRating * 100)
                                 ->toHtml();
                             ?>
                         </div>
 
-                        <div data-element="reviews-summary-text">
-                            <?= $block->escapeHtml(__('Rated with a')); ?>
-                            <b class="text-[#ffad0f]"><?= $block->escapeHtml($reviewsCurrentRating); ?></b>
-                            <?= $block->escapeHtml(__('out of')); ?>
-                            <?= $block->escapeHtml($reviewsMaxRating); ?>
-                            <?= $block->escapeHtml(__('based on')); ?>
-                            <b class="text-[#ffad0f]">
-                                <?= $block->escapeHtml($reviewsCount); ?> 
-                                <?= $reviewsCount > 1 
-                                        ? $block->escapeHtml(__('reviews')) 
-                                        : $block->escapeHtml(__('review')); ?>
-                            </b>
+                        <div data-element="reviews-summary-text" class="[&_b]:text-[#ffad0f]">
+                            <?= $escaper->escapeHtml(__('Rated with a <b>%1</b> out of %2 based on <b>%3 %4</b>', $reviewsCurrentRating, $reviewsMaxRating, $reviewsCount, $reviewLabel), ['b']); ?>
                         </div>
                     </div>
 
-                    <span data-element="close"
-                          @click="show = !show"
+                    <span data-element="close" @click="show = !show"
                           class="absolute top-3 right-3 flex p-1.5 rounded-full bg-gray-300 text-white
                                  opacity-80 cursor-pointer transition-opacity duration-300 hover:opacity-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
+                        <?= $heroicons->xHtml('', 24, 24); ?>
                     </span>
                 </div>
 
@@ -126,19 +116,19 @@ if ($block->getWidgetPosition() == 'bottom_left') $floatingClass = 'bottom-4 lef
                         <div data-element="review-item" 
                              class="grid gap-2.5 p-5 border-b border-gray-200 last:border-b-0">
 
-                            <b class="name text-base"><?= $block->escapeHtml($review['name']) ?></b>
+                            <b class="name text-base"><?= $escaper->escapeHtml($review['name']) ?></b>
                             <div class="summary flex gap-3 -ml-0.5">
                                 <?= $block->getLayout()
                                     ->createBlock('Magento\Framework\View\Element\Template')
                                     ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
-                                    ->setData('svgSize', '16')
+                                    ->setData('svgSize', '18')
                                     ->setData('percent', floatval($review['total']) / $reviewsMaxRating * 100)
                                     ->toHtml();
                                 ?>
 
-                                <span class="opacity-60 text-base"><?= $block->escapeHtml($review['created']) ?></span>
+                                <span class="opacity-60 text-base"><?= $escaper->escapeHtml($review['created']) ?></span>
                             </div>
-                            <div class="comment text-sm leading-6"><?= $block->escapeHtml($review['comment']) ?></div>
+                            <div class="comment text-sm leading-6"><?= $escaper->escapeHtml($review['comment']) ?></div>
                         </div>
                     <?php endforeach;?>
                 </div>

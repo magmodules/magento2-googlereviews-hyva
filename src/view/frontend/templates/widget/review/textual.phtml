@@ -1,23 +1,29 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright © Magmodules.eu. All rights reserved.
  * See COPYING.txt for license details.
  */
 
-/* @var \Magmodules\GoogleReviewsSR\Block\Widget\Review\Textual $block */
-$uniqId = rand();
-$logoSmall = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-small.png');
+ use Magmodules\GoogleReviewsSR\Block\Widget\Review\Textual;
+ use Magento\Framework\Escaper;
+
+/** @var Textual $block */
+/** @var Escaper $escaper */
+
+$uniqId = $block->getUniqueId();
 
 $reviewsCount = $block->getReviewsCount();
 $reviewsCurrentRating = $block->getReviewsCurrentRating();
 $reviewsMaxRating = $block->getReviewsMaxRating();
+
+$reviewLabel = $reviewsCount > 1 ? __('reviews') : __('review');
 ?>
 
 <section data-element="google-textual-widget-<?= $uniqId; ?>"
          class="inline-flex items-center flex-wrap gap-3">
     <?php if ($block->showIcons()): ?>
-        <img src="<?= $block->escapeUrl($logoSmall); ?>" width="24" height="24"
-            alt="<?= $block->escapeHtml(__('Google textual widget')); ?>" />
+        <img src="<?= $escaper->escapeUrl($block->getSmallLogoUrl()); ?>" width="24" height="24"
+            alt="<?= $escaper->escapeHtmlAttr(__('Google textual widget')); ?>" />
     <?php endif;?>
 
     <?php if ($block->showStars()): ?>
@@ -31,14 +37,6 @@ $reviewsMaxRating = $block->getReviewsMaxRating();
     <?php endif;?>
 
     <div class="text pt-0.5">
-        <?= $block->escapeHtml(__('Our store is rated with a')); ?>
-        <b><?= $block->escapeHtml($reviewsCurrentRating); ?></b>
-        <?= $block->escapeHtml(__('based on')); ?>
-        <b>
-            <?= $block->escapeHtml($reviewsCount); ?> 
-            <?= $reviewsCount > 1 
-                    ? $block->escapeHtml(__('reviews')) 
-                    : $block->escapeHtml(__('review')); ?>
-        </b>
+        <?= $escaper->escapeHtml(__('Our store is rated with a <b>%1</b> based on <b>%2 %3</b>', $reviewsCurrentRating, $reviewsCount, $reviewLabel), ['b']); ?>
     </div>
 </section>

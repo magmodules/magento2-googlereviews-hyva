@@ -1,13 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright © Magmodules.eu. All rights reserved.
  * See COPYING.txt for license details.
  */
+use Magmodules\GoogleReviewsSR\Block\Widget\Review\Overview;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\Model\ViewModelRegistry;
 
-/* @var \Magmodules\GoogleReviewsSR\Block\Widget\Review\Overview $block */
+/** @var Overview $block */
+/** @var Escaper $escaper */
+/** @var HeroiconsOutline $heroicons */
 
 $uniqId = rand();
-$logoBig = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-big.png');
 
 $reviewsCount = $block->getReviewsCount();
 $reviewsCurrentRating = $block->getReviewsCurrentRating();
@@ -19,6 +24,7 @@ $extraClass = !$block->showSummaryBlock() &&
 
 $reviewsPerStars = $block->getReviewsPerStars();
 $starsItem = ['5', '4', '3', '2', '1'];
+$reviewLabel = $reviewsCount > 1 ? __('reviews') : __('review');
 ?>
 
 <section data-element="google-overview-widget-<?= $uniqId; ?>"
@@ -34,8 +40,8 @@ $starsItem = ['5', '4', '3', '2', '1'];
                      class="px-5 py-6 bg-white border border-gray-200 rounded-xl shadow [&_[data-element=box-stars]]:-mr-1">
 
                     <header class="flex items-center justify-between gap-6 pb-5 border-b border-gray-200">
-                        <img src="<?= $block->escapeUrl($logoBig); ?>" width="138" height="46"
-                             alt="<?= $block->escapeHtml(__('Google overview widget')); ?>"
+                        <img src="<?= $escaper->escapeUrl($block->getBigLogoUrl()); ?>" width="138" height="46"
+                             alt="<?= $escaper->escapeHtmlAttr(__('Google overview widget')); ?>"
                              class="w-full max-w-[88px] sm:max-w-[116px] lg:max-w-[138px]" />
 
                         <div class="flex flex-col items-end">
@@ -50,19 +56,8 @@ $starsItem = ['5', '4', '3', '2', '1'];
                         </div>
                     </header>
 
-                    <div data-element="box-information"
-                         class="mt-4 mb-7 text-sm">
-                        <?= $block->escapeHtml(__('Rated with a')); ?>
-                        <b class="text-[#ffad0f]"><?= $block->escapeHtml($reviewsCurrentRating); ?></b>
-                        <?= $block->escapeHtml(__('out of a')); ?>
-                        <?= $block->escapeHtml($reviewsMaxRating); ?>
-                        <?= $block->escapeHtml(__('based on')); ?>
-                        <b class="text-[#ffad0f]">
-                            <?= $block->escapeHtml($reviewsCount); ?>
-                            <?= $reviewsCount > 1
-                                    ? $block->escapeHtml(__('reviews'))
-                                    : $block->escapeHtml(__('review')); ?>
-                        </b>
+                    <div data-element="box-information" class="mt-4 mb-7 text-sm [&_b]:text-[#ffad0f]">
+                        <?= $escaper->escapeHtml(__('Rated with a <b>%1</b> out of a %2 based on <b>%3 %4</b>', $reviewsCurrentRating, $reviewsMaxRating, $reviewsCount, $reviewLabel), ['b']); ?>
                     </div>
 
                     <div data-element="stars-counting" class="grid gap-3">
@@ -88,11 +83,11 @@ $starsItem = ['5', '4', '3', '2', '1'];
 
                     <?php if ($block->showFirstAndLast()): ?>
                         <div data-element="first-and-last" class="text-sm opacity-70 mt-7">
-                            <?= $block->escapeHtml(__('First Review')); ?>
-                            <span><?= $block->getFirstDate() ?></span>
+                            <?= $escaper->escapeHtml(__('First Review')); ?>
+                            <span class="font-semibold"><?= $block->getFirstDate() ?></span>
 
-                            <?= $block->escapeHtml(__('and last Review')); ?>
-                            <span><?= $block->getLastDate() ?></span>
+                            <?= $escaper->escapeHtml(__('and last Review')); ?>
+                            <span class="font-semibold"><?= $block->getLastDate() ?></span>
                         </div>
                     <?php endif;?>
                 </div>
@@ -103,7 +98,7 @@ $starsItem = ['5', '4', '3', '2', '1'];
                      class="px-4 pt-5 pb-6 bg-white border border-gray-200 rounded-xl shadow">
 
                     <h3 class="mb-5 ml-1 text-lg">
-                        <?= $block->escapeHtml(__('Filter on Rating')); ?>
+                        <?= $escaper->escapeHtml(__('Filter on Rating')); ?>
                     </h3>
                     <div class="grid grid-cols-[repeat(auto-fill,_minmax(115px,_1fr))] gap-2.5
                                 md:grid-cols-[repeat(auto-fill,_minmax(100px,_1fr))]">
@@ -127,18 +122,19 @@ $starsItem = ['5', '4', '3', '2', '1'];
                              @click="clearFilter"
                              class="text-sm flex items-center opacity-50 transition-opacity duration-300
                                     cursor-pointer hover:opacity-75 md:justify-center">
-                            <?= $block->escapeHtml(__('Clear Filter')); ?>
+                            <?= $escaper->escapeHtml(__('Clear Filter')); ?>
                         </div>
                     </div>
                 </div>
             <?php endif;?>
 
             <?php if ($block->showWriteReviewButton()): ?>
-                <a  href="<?= $block->escapeUrl($block->getReviewUrl()); ?>" 
-                    data-element="write-review"
-                    class="p-3 bg-blue-500 rounded-xl text-white text-center transition-colors duration-300 hover:bg-blue-700">
-                    <?= $block->escapeHtml(__('Write a Review')); ?>
-                </a>
+                <?php foreach ($block->getReviewUrl() as $reviewUrl): ?>
+                    <a href="<?= $escaper->escapeUrl($reviewUrl['url']); ?>" data-element="write-review"
+                       class="p-3 bg-blue-500 rounded-xl text-white text-center transition-colors duration-300 hover:bg-blue-700">
+                        <?= $escaper->escapeHtml(__('Write a Review for %1', $reviewUrl['name'])); ?>
+                    </a>
+                <?php endforeach ?>
             <?php endif;?>
         </div>
     <?php endif;?>
@@ -150,80 +146,44 @@ $starsItem = ['5', '4', '3', '2', '1'];
                         border-b border-gray-200 lg:justify-end">
 
                 <span class="hidden mr-2 opacity-70 lg:inline-block">
-                    <?= $block->escapeHtml(__('Sort By')); ?>
+                    <?= $escaper->escapeHtml(__('Sort By')); ?>
                 </span>
                 <span data-element="button" data-sort="newest"
                       @click="() => sortBy('newest')"
                       class="px-5 py-1.5 bg-blue-500 transition-colors duration-300 hover:bg-blue-700
                             cursor-pointer text-white text-sm rounded-xl lg:px-7"
                       :class="{ 'bg-blue-700': activeSorting === 'newest' }">
-                    <?= $block->escapeHtml(__('Newest')); ?>
+                    <?= $escaper->escapeHtml(__('Newest')); ?>
                 </span>
                 <span data-element="button" data-sort="oldest"
                       @click="() => sortBy('oldest')"
                       class="px-5 py-1.5 bg-blue-500 transition-colors duration-300 hover:bg-blue-700
                              cursor-pointer text-white text-sm rounded-xl lg:px-7"
                       :class="{ 'bg-blue-700': activeSorting === 'oldest' }">
-                    <?= $block->escapeHtml(__('Oldest')); ?>
+                    <?= $escaper->escapeHtml(__('Oldest')); ?>
                 </span>
                 <span data-element="button" data-sort="lowest"
                       @click="() => sortBy('lowest')"
                       class="px-5 py-1.5 bg-blue-500 transition-colors duration-300 hover:bg-blue-700
                              cursor-pointer text-white text-sm rounded-xl lg:px-7"
                       :class="{ 'bg-blue-700': activeSorting === 'lowest' }">
-                    <?= $block->escapeHtml(__('Lowest')); ?>
+                    <?= $escaper->escapeHtml(__('Lowest')); ?>
                 </span>
                 <span data-element="button" data-sort="highest"
                       @click="() => sortBy('highest')"
                       class="px-5 py-1.5 bg-blue-500 transition-colors duration-300 hover:bg-blue-700
                              cursor-pointer text-white text-sm rounded-xl lg:px-7"
                       :class="{ 'bg-blue-700': activeSorting === 'highest' }">
-                    <?= $block->escapeHtml(__('Highest')); ?>
+                    <?= $escaper->escapeHtml(__('Highest')); ?>
                 </span>
             </div>
         <?php endif;?>
 
         <div data-element="box-review" class="flex flex-col">
-
-        <div data-element="review-item" 
-                     data-rating="3"
-                     data-time="02 Nov 2023"
-                     class="mb-4 pb-4 border-b border-gray-200"
-                     :class="{
-                        'hidden': filtering,
-                        '!block [&~[data-element=no-data]]:hidden': activeFilter.includes(3)
-                     }"
-                     :style="{ 'order': sortOrder.active[0] }">
-
-                    <header class="flex gap-5 items-center justify-between mb-3">
-                        <b class="name">Test test</b>
-                        <div class="summary text-sm flex items-center gap-4">
-                            <span class="relative top-0.5 opacity-50">
-                            02 Nov 2023
-                            </span>
-
-                            <?= $block->getLayout()
-                                ->createBlock('Magento\Framework\View\Element\Template')
-                                ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
-                                ->setData('svgSize', '20')
-                                ->setData('percent', 60)
-                                ->toHtml();
-                            ?>
-                        </div>
-                    </header>
-
-                    <div class="comment text-sm">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Reprehenderit, alias. Sed doloribus nulla
-                         commodi animi voluptas, eum qui 
-                        dolorem exercitationem perspiciatis delectus eveniet provident officia accusamus.
-                         Aut numquam repudiandae perferendis?    
-                    </div>
-                </div>
-
             <?php foreach ($reviews = $block->getReviews() as $index=>$review): ?>
                 <div data-element="review-item" 
                      data-rating="<?= floatval($review['total']); ?>"
-                     data-time="<?= $block->escapeHtml($review['created']) ?>"
+                     data-time="<?= $escaper->escapeHtmlAttr($review['created']) ?>"
                      class="mb-4 pb-4 border-b border-gray-200"
                      :class="{
                         'hidden': filtering,
@@ -232,10 +192,10 @@ $starsItem = ['5', '4', '3', '2', '1'];
                      :style="{ 'order': sortOrder.active[<?= $index; ?>] }">
 
                     <header class="flex gap-5 items-center justify-between mb-3">
-                        <b class="name"><?= $block->escapeHtml($review['name']) ?></b>
+                        <b class="name"><?= $escaper->escapeHtml($review['name']) ?></b>
                         <div class="summary text-sm flex items-center gap-4">
                             <span class="relative top-0.5 opacity-50">
-                                <?= $block->escapeHtml($review['created']) ?>
+                                <?= $escaper->escapeHtml($review['created']) ?>
                             </span>
 
                             <?= $block->getLayout()
@@ -248,52 +208,16 @@ $starsItem = ['5', '4', '3', '2', '1'];
                         </div>
                     </header>
 
-                    <div class="comment text-sm"><?= $block->escapeHtml($review['comment']) ?></div>
+                    <div class="comment text-sm"><?= $escaper->escapeHtml($review['comment']) ?></div>
                 </div>
             <?php endforeach;?>
-
-            <div data-element="review-item" 
-                     data-rating="1"
-                     data-time="13 Jan 2018"
-                     class="mb-4 pb-4 border-b border-gray-200"
-                     :class="{
-                        'hidden': filtering,
-                        '!block [&~[data-element=no-data]]:hidden': activeFilter.includes(1)
-                     }"
-                     :style="{ 'order': sortOrder.active[11] }">
-
-                    <header class="flex gap-5 items-center justify-between mb-3">
-                        <b class="name">Test test 2</b>
-                        <div class="summary text-sm flex items-center gap-4">
-                            <span class="relative top-0.5 opacity-50">
-                            13 Jan 2018
-                            </span>
-
-                            <?= $block->getLayout()
-                                ->createBlock('Magento\Framework\View\Element\Template')
-                                ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
-                                ->setData('svgSize', '20')
-                                ->setData('percent', 20)
-                                ->toHtml();
-                            ?>
-                        </div>
-                    </header>
-
-                    <div class="comment text-sm">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Reprehenderit, alias. Sed doloribus nulla
-                         commodi animi voluptas, eum qui 
-                        dolorem exercitationem perspiciatis delectus eveniet provident officia accusamus.
-                         Aut numquam repudiandae perferendis?    
-                    </div>
-                </div>
-            
 
             <h3 data-element="no-data"
                 :class="{ 
                     'block': filtering,
                     'hidden': !filtering,
                 }">
-                <?= $block->escapeHtml(__("Sorry, there's no reviews for this filter.")); ?>
+                <?= $escaper->escapeHtml(__("Sorry, there's no reviews for this filter.")); ?>
             </h3>
         </div>
     </div>
