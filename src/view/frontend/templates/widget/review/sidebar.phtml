@@ -1,12 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright © Magmodules.eu. All rights reserved.
  * See COPYING.txt for license details.
  */
 
-/* @var \Magmodules\GoogleReviewsSR\Block\Widget\Review\Sidebar $block */
-$uniqId = rand();
-$logoBig = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-big.png');
+ use Magmodules\GoogleReviewsSR\Block\Widget\Review\Sidebar;
+ use Magento\Framework\Escaper;
+ use Hyva\Theme\ViewModel\HeroiconsOutline;
+ use Hyva\Theme\Model\ViewModelRegistry;
+
+/** @var Sidebar $block */
+/** @var Escaper $escaper */
+/** @var HeroiconsOutline $heroicons */
+
+$uniqId = $block->getUniqueId();
 
 $reviewsCount = $block->getReviewsCount();
 $reviewsCurrentRating = $block->getReviewsCurrentRating();
@@ -15,11 +22,14 @@ $reviewsMaxRating = $block->getReviewsMaxRating();
 if ($block->getTextLength() == 'small')  $txtLen = 2;
 if ($block->getTextLength() == 'medium') $txtLen = 4;
 if ($block->getTextLength() == 'large')  $txtLen = 6;
+
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+$reviewLabel = $reviewsCount > 1 ? __('reviews') : __('review');
 ?>
 
 <section data-element="google-sidebar-widget-<?= $uniqId; ?>"
          x-data="GoogleSidebar_<?= $uniqId ?>"
-         class="min-w-[260px] bg-white border border-gray-200 rounded-xl shadow overflow-hidden">
+         class="max-w-xs bg-white border border-gray-200 rounded-xl shadow overflow-hidden">
     
     <header class="grid gap-1.5 p-4 bg-[#f9f9f9]">
         <?php if ($block->showLogoInHeader() || $block->showStarsInHeader()): ?>
@@ -27,15 +37,15 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
                  class="flex items-center justify-between gap-11">
 
                 <?php if ($block->showLogoInHeader()): ?>
-                    <img src="<?= $block->escapeUrl($logoBig); ?>" width="83" height="28"
-                         alt="<?= $block->escapeHtml(__('Google sidebar widget')); ?>" />
+                    <img src="<?= $escaper->escapeUrl($block->getBigLogoUrl()); ?>" width="83" height="28"
+                         alt="<?= $escaper->escapeHtmlAttr(__('Google sidebar widget')); ?>" />
                 <?php endif; ?>
 
                 <?php if ($block->showStarsInHeader()): ?>
                     <?= $block->getLayout()
                             ->createBlock('Magento\Framework\View\Element\Template')
                             ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
-                            ->setData('svgSize', '20')
+                            ->setData('svgSize', '22')
                             ->setData('percent', $reviewsCurrentRating / $reviewsMaxRating * 100)
                             ->toHtml();
                     ?>
@@ -46,14 +56,7 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
         <div data-element="box-information"
              class="flex gap-5 justify-between">
             <div>
-                <b><?= $block->escapeHtml($reviewsCurrentRating); ?></b>
-                <?= $block->escapeHtml(__('based on')); ?>
-                <b>
-                    <?= $block->escapeHtml($reviewsCount); ?>
-                    <?= $reviewsCount > 1
-                            ? $block->escapeHtml(__('reviews'))
-                            : $block->escapeHtml(__('review')); ?>
-                </b>
+                <?= $escaper->escapeHtml(__('<b>%1</b> based on <b>%2 %3</b>', $reviewsCurrentRating, $reviewsCount, $reviewLabel), ['b']); ?>
             </div>
         </div>
     </header>
@@ -80,7 +83,7 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
                     <div class="px-2 min-w-full">
                         <div data-element="review-item" class="flex flex-col px-4 pt-4">
                             <header class="flex justify-between gap-5 pb-3 mb-5 border-b border-gray-200">
-                                <b class="name"><?= $block->escapeHtml($review['name']) ?></b>
+                                <b class="name"><?= $escaper->escapeHtml($review['name']) ?></b>
 
                                 <?php if ($block->showStarsPerReview()): ?>
                                     <?php
@@ -90,7 +93,7 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
                                     <?= $block->getLayout()
                                         ->createBlock('Magento\Framework\View\Element\Template')
                                         ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
-                                        ->setData('svgSize', '16')
+                                        ->setData('svgSize', '18')
                                         ->setData('starColor', $starColor)
                                         ->setData('percent', $reviewsCurrentRating / $reviewsMaxRating * 100)
                                         ->toHtml();
@@ -100,8 +103,8 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
 
                             <?php if (trim($review['comment'])): ?>
                                 <div class="comment opacity-70 text-sm leading-6"
-                                    style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: <?=$block->escapeHtml($txtLen)?>;">
-                                    <?= $block->escapeHtml($review['comment']) ?>
+                                    style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: <?=$escaper->escapeHtml($txtLen)?>;">
+                                    <?= $escaper->escapeHtml($review['comment']) ?>
                                 </div>
                             <?php endif;?>
                         </div>
@@ -113,9 +116,9 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
         <!-- Dots -->
         <div class="flex flex-wrap gap-2 justify-center mt-7 px-9">
             <template x-for="(dot, index) in new Array(slideOnPage)">
-                <span class="inline-block w-3 h-3 rounded-full border border-gray-300 bg-gray-300 cursor-pointer
+                <span class="inline-block w-3 h-3 rounded-full border bg-gray-300 cursor-pointer
                             transition-colors duration-300"
-                        :class="{ 'border-black bg-black': activeSlidePage == index + 1 }"
+                        :class="{ '!bg-black': activeSlidePage == index + 1 }"
                         @click="setSlidePage(index + 1)"></span>
             </template>
         </div>
@@ -123,20 +126,18 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
         <!-- Arrow -->
         <template x-if="options.arrows" >
             <div class="slider-arrow absolute bottom-5 left-1 right-1">
-                <span class="arrow-left absolute left-0 bottom-1/2 translate-y-3 p-1 opacity-50
+                <span class="absolute left-0 bottom-1/2 translate-y-3 p-1 opacity-50
                              cursor-pointer transition-opacity duration-300 hover:opacity-75"
+                      data-element="arrow-left"
                       @click="arrowPrev">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                    </svg>
+                    <?= $heroicons->chevronLeftHtml('', 16, 16); ?>
                 </span>
 
-                <span class="arrow-right absolute right-0 bottom-1/2 translate-y-3 p-1 opacity-50
+                <span class="absolute right-0 bottom-1/2 translate-y-3 p-1 opacity-50
                              cursor-pointer transition-opacity duration-300 hover:opacity-75"
+                      data-element="arrow-right"
                       @click="arrowNext">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
+                    <?= $heroicons->chevronRightHtml('', 16, 16); ?>
                 </span>
             </div>
         </template>

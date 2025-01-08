@@ -1,18 +1,26 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright © Magmodules.eu. All rights reserved.
  * See COPYING.txt for license details.
  */
 
-/* @var \Magmodules\GoogleReviewsSR\Block\Widget\Review\Badge $block */
+ use Magmodules\GoogleReviewsSR\Block\Widget\Review\Badge;
+ use Magento\Framework\Escaper;
+ use Hyva\Theme\ViewModel\HeroiconsOutline;
+ use Hyva\Theme\Model\ViewModelRegistry;
 
-$uniqId = rand();
-$logoBig = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-big.png');
-$logoSmall = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-small.png');
+/** @var Badge $block */
+/** @var Escaper $escaper */
+/** @var HeroiconsOutline $heroicons */
+
+$uniqId = $block->getUniqueId();
 
 $reviewsCount = $block->getReviewsCount();
 $reviewsCurrentRating = $block->getReviewsCurrentRating();
 $reviewsMaxRating = $block->getReviewsMaxRating();
+
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+$reviewLabel = $reviewsCount > 1 ? __('reviews') : __('review');
 ?>
 
 <div x-data="BadgeWidget_<?= $uniqId ?>">
@@ -26,15 +34,15 @@ $reviewsMaxRating = $block->getReviewsMaxRating();
                 class="flex items-center justify-center gap-7">
 
                 <?php if ($block->showLogo()): ?>
-                    <img src="<?= $block->escapeUrl($logoBig); ?>" width="83" height="28"
-                        alt="<?= $block->escapeHtml(__('Google badge widget')); ?>" />
+                    <img src="<?= $escaper->escapeUrl($block->getBigLogoUrl()); ?>" width="83" height="28"
+                         alt="<?= $escaper->escapeHtmlAttr(__('Google badge widget')); ?>" />
                 <?php endif; ?>
 
                 <?php if ($block->showStars()): ?>
                     <?= $block->getLayout()
                             ->createBlock('Magento\Framework\View\Element\Template')
                             ->setTemplate('Magmodules_HyvaGoogleReviewsSR::widget/helper/stars.phtml')
-                            ->setData('svgSize', '20')
+                            ->setData('svgSize', '22')
                             ->setData('percent', $reviewsCurrentRating / $reviewsMaxRating * 100)
                             ->toHtml();
                     ?>
@@ -45,22 +53,13 @@ $reviewsMaxRating = $block->getReviewsMaxRating();
         <div data-element="box-information" 
             class="flex gap-5 <?= $block->showReviewLink() ? 'justify-between': 'justify-center' ?>">
             <div>
-                <b><?= $block->escapeHtml($reviewsCurrentRating); ?></b>
-                <?= $block->escapeHtml(__('based on')); ?>
-                <b>
-                    <?= $block->escapeHtml($reviewsCount); ?> 
-                    <?= $reviewsCount > 1 
-                            ? $block->escapeHtml(__('reviews')) 
-                            : $block->escapeHtml(__('review')); ?>
-                </b>
+                <?= $escaper->escapeHtml(__('<b>%1</b> based on <b>%2 %3</b>', $reviewsCurrentRating, $reviewsCount, $reviewLabel), ['b']); ?>
             </div>
 
             <?php if ($block->showReviewLink()): ?>
                 <span data-element="link-icon" 
-                    class="h-5 text-blue-500 transition-colors duration-300 group-hover:text-blue-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                    </svg>
+                      class="h-5 text-blue-500 transition-colors duration-300 group-hover:text-blue-700">
+                    <?= $heroicons->externalLinkHtml('', 20, 20, ["style" => "stroke-width: 1.5"]); ?>
                 </span>
             <?php endif;?>
         </div>
@@ -85,42 +84,31 @@ $reviewsMaxRating = $block->getReviewsMaxRating();
 
             <div class="grid grid-rows-[auto_1fr] bg-white border border-gray-200">
                 <div data-element="reviews-summary" 
-                    class="relative grid grid-cols-[60px_1fr] gap-4 p-4 border-b border-gray-200">
+                     class="relative grid grid-cols-[60px_1fr] gap-4 p-4 border-b border-gray-200">
 
-                    <img src="<?= $block->escapeUrl($logoSmall); ?>" width="60" height="60"
-                        alt="<?= $block->escapeHtml(__('Google badge widget')); ?>" />
+                    <img src="<?= $escaper->escapeUrl($block->getSmallLogoUrl()); ?>" width="60" height="60"
+                         alt="<?= $escaper->escapeHtmlAttr(__('Google badge widget')); ?>" />
 
                     <div>
                         <div data-element="reviews-summary-stars" class="-ml-1.5">
                             <?= $block->getLayout()
                                 ->createBlock('Magento\Framework\View\Element\Template')
                                 ->setTemplate('Magmodules_HyvaGoogleReviewsSR::widget/helper/stars.phtml')
-                                ->setData('svgSize', '28')
+                                ->setData('svgSize', '30')
                                 ->setData('percent', $reviewsCurrentRating / $reviewsMaxRating * 100)
                                 ->toHtml();
                             ?>
                         </div>
 
-                        <div data-element="reviews-summary-text">
-                            <?= $block->escapeHtml(__('Rated with')); ?>
-                            <b class="text-[#ffad0f]"><?= $block->escapeHtml($reviewsCurrentRating); ?></b>
-                            <?= $block->escapeHtml(__('based on')); ?>
-                            <b class="text-[#ffad0f]">
-                                <?= $block->escapeHtml($reviewsCount); ?> 
-                                <?= $reviewsCount > 1 
-                                        ? $block->escapeHtml(__('reviews')) 
-                                        : $block->escapeHtml(__('review')); ?>
-                            </b>
+                        <div data-element="reviews-summary-text" class="[&_b]:text-[#ffad0f]">
+                            <?= $escaper->escapeHtml(__('Rated with <b>%1</b> based on <b>%2 %3</b>', $reviewsCurrentRating, $reviewsCount, $reviewLabel), ['b']); ?>
                         </div>
                     </div>
 
-                    <span data-element="close" 
-                          @click="show = !show"
+                    <span data-element="close" @click="show = !show"
                           class="absolute top-3 right-3 opacity-50 cursor-pointer
                                 transition-opacity hover:opacity-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
+                        <?= $heroicons->xHtml('', 24, 24); ?>
                     </span>
                 </div>
 
@@ -129,19 +117,19 @@ $reviewsMaxRating = $block->getReviewsMaxRating();
                         <div data-element="review-item"
                             class="grid gap-2.5 p-5 border-b border-gray-200 last:border-b-0">
 
-                            <b class="name text-base"><?= $block->escapeHtml($review['name']) ?></b>
+                            <b class="name text-base"><?= $escaper->escapeHtml($review['name']) ?></b>
                             <div class="summary flex gap-3 -ml-0.5">
                                 <?= $block->getLayout()
                                     ->createBlock('Magento\Framework\View\Element\Template')
                                     ->setTemplate('Magmodules_HyvaGoogleReviewsSR::widget/helper/stars.phtml')
-                                    ->setData('svgSize', '16')
+                                    ->setData('svgSize', '18')
                                     ->setData('percent', floatval($review['total']) / $reviewsMaxRating * 100)
                                     ->toHtml();
                                 ?>
 
-                                <span class="opacity-60 text-base"><?= $block->escapeHtml($review['created']) ?></span>
+                                <span class="opacity-60 text-base"><?= $escaper->escapeHtml($review['created']) ?></span>
                             </div>
-                            <div class="comment text-sm leading-6"><?= $block->escapeHtml($review['comment']) ?></div>
+                            <div class="comment text-sm leading-6"><?= $escaper->escapeHtml($review['comment']) ?></div>
                         </div>
                     <?php endforeach;?>
                 </div>

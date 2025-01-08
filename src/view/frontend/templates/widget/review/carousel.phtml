@@ -1,19 +1,26 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Copyright © Magmodules.eu. All rights reserved.
  * See COPYING.txt for license details.
  */
 
-/* @var \Magmodules\GoogleReviewsSR\Block\Widget\Review\Carousel $block */
+ use Magmodules\GoogleReviewsSR\Block\Widget\Review\Carousel;
+ use Magento\Framework\Escaper;
+ use Hyva\Theme\ViewModel\HeroiconsOutline;
+ use Hyva\Theme\Model\ViewModelRegistry;
+
+/** @var Carousel $block */
+/** @var Escaper $escaper */
+/** @var HeroiconsOutline $heroicons */
 
 $uniqId = rand();
-$logoSmall = $block->getViewFileUrl('Magmodules_GoogleReviewsSR::images/logo-small.png');
-
 $reviewsMaxRating = $block->getReviewsMaxRating();
 
 if ($block->getTextLength() == 'small')  $txtLen = 2;
 if ($block->getTextLength() == 'medium') $txtLen = 4;
 if ($block->getTextLength() == 'large')  $txtLen = 6;
+
+$heroicons = $viewModels->require(HeroiconsOutline::class);
 ?>
 
 <section data-element="google-carousel-widget-<?= $uniqId; ?>" 
@@ -45,7 +52,7 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
                             class="flex flex-col p-4 bg-white border border-gray-200 rounded-xl shadow h-full">
                             
                             <header class="flex items-center justify-between gap-5 pb-3 mb-5 border-b border-gray-200">
-                                <b class="name"><?= $block->escapeHtml($review['name']) ?></b>
+                                <b class="name"><?= $escaper->escapeHtml($review['name']) ?></b>
 
                                 <?php if ($block->showStars()): ?>
                                     <?php 
@@ -55,7 +62,7 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
                                     <?= $block->getLayout()
                                         ->createBlock('Magento\Framework\View\Element\Template')
                                         ->setTemplate('Magmodules_GoogleReviewsSR::widget/helper/stars.phtml')
-                                        ->setData('svgSize', '16')
+                                        ->setData('svgSize', '18')
                                         ->setData('starColor', $starColor)
                                         ->setData('percent', floatval($review['total']) / $reviewsMaxRating * 100)
                                         ->toHtml();
@@ -65,8 +72,8 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
 
                             <?php if (trim($review['comment'])): ?>
                                 <div class="comment mb-5 text-sm leading-6 opacity-70 overflow-hidden"
-                                    style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: <?=$block->escapeHtml($txtLen)?>;">
-                                    <?= $block->escapeHtml($review['comment']) ?>
+                                    style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: <?=$escaper->escapeHtml($txtLen)?>;">
+                                    <?= $escaper->escapeHtml($review['comment']) ?>
                                 </div>
                             <?php endif;?>
 
@@ -74,38 +81,34 @@ if ($block->getTextLength() == 'large')  $txtLen = 6;
                                         <?= !$block->showIcon() ? 'block' : 'grid' ?>">
 
                                 <?php if ($block->showIcon()): ?>
-                                    <img src="<?= $block->escapeUrl($logoSmall); ?>" width="28" height="28"
-                                        alt="<?= $block->escapeHtml(__('Google carousel widget')); ?>" />
+                                    <img src="<?= $escaper->escapeUrl($block->getSmallLogoUrl()); ?>" width="26" height="26"
+                                         alt="<?= $escaper->escapeHtmlAttr(__('Google carousel widget')); ?>" />
                                 <?php endif;?>
 
                                 <span class="opacity-70 text-sm">
-                                    <?= $block->escapeHtml(__('A Google Review written')); ?>
-                                    <?= $block->escapeHtml($review['created']) ?>
+                                    <?= $escaper->escapeHtml(__('A Google Review written %1', $review['created'])); ?>
                                 </span>
                             </footer>
                         </div>
                     </div>
                 <?php endforeach;?>
-
             </div>
         </div>
 
         <template x-if="options.arrows" >
             <div class="slider-arrow">
-                <span class="arrow-left absolute left-0 bottom-1/2 translate-y-3 p-1 opacity-50
+                <span class="absolute left-0 bottom-1/2 translate-y-3 p-1 opacity-50
                              cursor-pointer transition-opacity duration-300 hover:opacity-75"
-                      @click="arrowPrev">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                    </svg>
+                    data-element="arrow-left"
+                    @click="arrowPrev">
+                    <?= $heroicons->chevronLeftHtml('', 16, 16); ?>
                 </span>
 
                 <span class="arrow-right absolute right-0 bottom-1/2 translate-y-3 p-1 opacity-50
                              cursor-pointer transition-opacity duration-300 hover:opacity-75"
-                      @click="arrowNext">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
+                    data-element="arrow-right"
+                    @click="arrowNext">
+                    <?= $heroicons->chevronRightHtml('', 16, 16); ?>
                 </span>
             </div>
         </template>
