@@ -552,6 +552,9 @@ $viewModel = $block->getViewModel();
 
             updateReviews(params) {
                 this.isLoading = true;
+                // The panel is a sheet over the reviews it filters; leaving it open hides the
+                // answer to what was just asked.
+                this.showFilters = false;
                 const URLParams = new URLSearchParams();
             
                 URLParams.append('accounts', this.filterAccounts.join(','));

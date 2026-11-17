@@ -132,7 +132,11 @@ $reviewLabel = $reviewsCount > 1 ? __('reviews') : __('review');
                 <?php foreach ($block->getReviewUrl() as $reviewUrl): ?>
                     <a href="<?= $escaper->escapeUrl($reviewUrl['url']); ?>" data-element="write-review"
                        class="p-3 bg-blue-500 rounded-xl text-white text-center transition-colors duration-300 hover:bg-blue-700">
-                        <?= $escaper->escapeHtml(__('Write a Review for %1', $reviewUrl['name'])); ?>
+                        <?= $escaper->escapeHtml(
+                            $reviewUrl['name'] !== ''
+                                ? __('Write a Review for %1', $reviewUrl['name'])
+                                : __('Write a Review')
+                        ); ?>
                     </a>
                 <?php endforeach ?>
             <?php endif;?>
