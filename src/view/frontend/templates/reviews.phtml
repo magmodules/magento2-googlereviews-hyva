@@ -493,6 +493,30 @@ $viewModel = $block->getViewModel();
                     </div>
                 </template>
 
+                <!-- Filter for locations -->
+                <template x-if="filters.locations.enabled && filters.locations.data.length">
+                    <div class="filters-container mb-4 pb-5 border-b border-stone-300">
+                        <h3 class="text-stone-700 text-lg font-bold mb-2">
+                            <?= $escaper->escapeHtml(__('Filter on location:')); ?>
+                        </h3>
+
+                        <div class="review-filters text-sm text-stone-600 flex flex-wrap gap-x-8 gap-y-4">
+                            <template x-for="item in filters.locations.data">
+                                <label class="inline-flex items-center gap-3"
+                                       :for="`locations-filter-${item.value}`">
+                                    <input type="checkbox" name="locations"
+                                        :id="`locations-filter-${item.value}`"
+                                        :value="item.value"
+                                        :checked="item.selected"
+                                        @click="saveForUpdate('filterLocations', item.value)">
+
+                                    <span x-text="item.label"></span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
                 <button class="btn btn-primary mt-5 text-base py-1"
                         @click="updateReviews">
                     <?= $escaper->escapeHtml(__('Apply filters')); ?>
@@ -521,6 +545,7 @@ $viewModel = $block->getViewModel();
             showFilters: false,
             isLoading: false,
             filterAccounts: [],
+            filterLocations: [],
             filterLocales: [],
             filterReview: [],
             filterYears: [],
@@ -561,6 +586,7 @@ $viewModel = $block->getViewModel();
                 URLParams.append('locales', this.filterLocales.join(','));
                 URLParams.append('ratings', this.filterReview.join(','));
                 URLParams.append('years', this.filterYears.join(','));
+                URLParams.append('locations', this.filterLocations.join(','));
                 URLParams.append('page', params['page'] ? params['page'] : '');
 
                 fetch(`${this.filters.url}?${URLParams.toString()}`, { method:'get' })            
